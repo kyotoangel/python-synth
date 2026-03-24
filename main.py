@@ -5,3 +5,4 @@ moteur = MoteurAudio()
 samples = moteur.generate_sine(69)
 moteur.play(samples)
 sd.wait()
+
