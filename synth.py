@@ -12,13 +12,22 @@ class Synth:
         """
         Simple sine wave oscillator, takes a MIDI input argument and outputs a sine wave
         """
-        note_frequency = _note_to_frequency(note)
+        note_frequency = self._note_to_frequency(note)
         temps = np.linspace(0,1,self.moteur.sample_rate)
         self.output = np.sin(2*np.pi*note_frequency*temps)
         return self.output
     
     def generate_saw(self, note):
-        pass
+        note_frequency = self._note_to_frequency(note)
+        temps = np.linspace(0,1,self.moteur.sample_rate)
+        self.output = np.mod(note_frequency*temps, 1)*2 - 1
+        return self.output
     
     def generate_square(self,note):
-        pass
+        """
+        Simple square wave oscillator, takes a MIDI input argument and outputs a square wave
+        """
+        note_frequency = self._note_to_frequency(note)
+        temps = np.linspace(0,1,self.moteur.sample_rate)
+        self.output = np.sign(np.sin(2*np.pi*note_frequency*temps))
+        return self.output
