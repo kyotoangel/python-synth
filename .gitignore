@@ -1,0 +1,12 @@
+# Environnement virtuel
+.venv/
+venv/
+ENV/
+
+# Configuration PyCharm (Optionnel mais recommandé)
+.idea/
+
+# Fichiers compilés Python
+**/__pycache__/
+*.py[cod]
+*$py.class
