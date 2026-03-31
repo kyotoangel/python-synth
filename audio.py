@@ -6,6 +6,7 @@ class MoteurAudio:
         self.sample_rate = sample_rate
         self.volume = volume
         self.tuning = tuning
+        self.notes_actives = {}
         
     def play(self, samples: np.ndarray):
         """
@@ -20,4 +21,3 @@ class MoteurAudio:
         Stops the sound
         """
         sd.stop()
-

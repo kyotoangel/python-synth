@@ -1,7 +1,9 @@
 from audio import MoteurAudio
+from synth import Synth
 import sounddevice as sd
 
 moteur = MoteurAudio()
-samples = moteur.generate_sine(69)
+synth = Synth(moteur)
+samples = synth.generate_saw(69)
 moteur.play(samples)
 sd.wait()
