@@ -5,8 +5,7 @@ import time
 
 if __name__ == '__main__':
     moteur = MoteurAudio()
-    synth = Synth(moteur)
-
+    synth = Synth(moteur, "square")
     moteur.start(synth)
 
     synth.note_on(60)  # Do4

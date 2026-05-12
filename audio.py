@@ -39,7 +39,12 @@ class MoteurAudio:
             phase = data["phase"]
 
             phases = phase + np.arange(frames) * frequence / self.sample_rate
-            buffer += np.sin(2 * np.pi * phases)
+            if self.synth.waveform == "sine" :
+                buffer += self.synth._compute_sine(phases)
+            elif self.synth.waveform == "saw":
+                buffer += self.synth._compute_saw(phases)
+            elif self.synth.waveform == "square":
+                buffer += self.synth._compute_square(phases)
 
             data["phase"] = phases[-1] % 1.0
 
