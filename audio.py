@@ -2,7 +2,7 @@ import numpy as np
 import sounddevice as sd
 
 class MoteurAudio:
-    def __init__(self, sample_rate: int = 44100, volume: float = -6.0, tuning: int = 440, buffer_size = 256) -> None:
+    def __init__(self, sample_rate: int = 44100, volume: float = -18.0, tuning: int = 440, buffer_size = 256) -> None:
         self.sample_rate = sample_rate
         self.buffer_size = buffer_size
         self.volume = volume
@@ -32,9 +32,15 @@ class MoteurAudio:
         return 10 ** (self.volume / 20)
 
     def callback(self, outdata, frames, time, status):
-        # 1. Créer un buffer vide (silence)
-        # 2. Pour chaque note dans synth.notes_actives :
-        #    - générer les samples avec la phase courante
-        #    - les additionner au buffer
-        #    - mettre à jour la phase
-        # 3. Remplir outdata avec le buffer
+        buffer = np.zeros(frames)
+
+        for note, data in self.synth.notes_actives.items():
+            frequence = self.synth._note_to_frequency(note)
+            phase = data["phase"]
+
+            phases = phase + np.arange(frames) * frequence / self.sample_rate
+            buffer += np.sin(2 * np.pi * phases)
+
+            data["phase"] = phases[-1] % 1.0
+
+        outdata[:, 0] = buffer * self.get_gain()
