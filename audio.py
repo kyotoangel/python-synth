@@ -7,7 +7,7 @@ class MoteurAudio:
         self.buffer_size = buffer_size
         self.volume = volume
         self.tuning = tuning
-        self.notes_actives = {}
+        self.stream = None
         
     def play(self, samples: np.ndarray):
         """
@@ -16,20 +16,25 @@ class MoteurAudio:
         """
         gain_samples = samples * 10**(self.volume/20) #corrige avec le volume (dB deviennent linéaires)
         sd.play(gain_samples, self.sample_rate)
-    
+
+    def start(self, synth):
+        self.synth = synth
+        self.stream = sd.OutputStream(samplerate=self.sample_rate, channels=1, callback=self.callback, blocksize=self.buffer_size, dtype='float32')
+        self.stream.start()
+
     def stop(self):
         """
         Stops the sound
         """
         sd.stop()
 
-    def note_on(self, note):
-        if note not in self.notes_actives:
-            self.notes_actives[note] = 0.0 #on initialise la phase à 0
-
-    def note_off(self, note):
-        if note in self.notes_actives:
-            del self.notes_actives[note] #on retire la note
-
     def get_gain(self):
         return 10 ** (self.volume / 20)
+
+    def callback(self, outdata, frames, time, status):
+        # 1. Créer un buffer vide (silence)
+        # 2. Pour chaque note dans synth.notes_actives :
+        #    - générer les samples avec la phase courante
+        #    - les additionner au buffer
+        #    - mettre à jour la phase
+        # 3. Remplir outdata avec le buffer

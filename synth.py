@@ -5,6 +5,8 @@ class Synth:
     def __init__(self, moteur: MoteurAudio, waveform: str = "sine"):
         self.moteur = moteur
         self.waveform = waveform
+        self.notes_actives = {}
+
     def _note_to_frequency(self, note):
         return self.moteur.tuning*2**((note-69)/12) #formule pour convert midi en fréquence
 
@@ -20,7 +22,7 @@ class Synth:
     def generate_buffer(self):
         buffer = np.zeros(self.moteur.buffer_size)
 
-        if note self.moteur.notes_actives :
+        if not self.moteur.notes_actives :
             return buffer
 
         notes_a_traiter = list(self.moteur.notes_actives.items())
@@ -44,8 +46,16 @@ class Synth:
             buffer += wave
 
             # sauvegarde de la phase pour le prochain buffer
-            self.moteur.notes_actives[note] = (phases[-1] + delta_phi) % 1.0
+            self.moteur.notes_actives[note] = (phase[-1] + delta_phi) % 1.0
 
         # gain et normalisation
         nb_notes = len(self.moteur.notes_actives)
         return buffer * (self.moteur.get_gain() / max(nb_notes, 1))
+
+    def note_on(self, note):
+        if note not in self.notes_actives:
+            self.notes_actives[note] = {"phase" : 0.0}
+
+    def note_off(self, note):
+        if note in self.notes_actives:
+            del self.notes_actives[note] #on retire la note
