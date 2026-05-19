@@ -39,7 +39,7 @@ class VitalOsc(QFrame):
     def __init__(self):
         super().__init__()
 
-        self.wf_types = ["SINE", "TRIANGLE", "SAWTOOTH", "SQUARE"]
+        self.wf_types = ["SINE", "TRIANGLE", "SAW", "SQUARE"]
         self.wf_idx = 2 # SAWTOOTH par défaut
         self.level = 0.5
 
@@ -124,7 +124,7 @@ class VitalOsc(QFrame):
             y_vals = np.sin(x_vals)
         elif wf == "TRIANGLE":
             y_vals = (2 / np.pi) * np.arcsin(np.sin(x_vals))
-        elif wf == "SAWTOOTH":
+        elif wf == "SAW":
             y_vals = (x_vals % (2 * np.pi)) / np.pi - 1
         else:  # SQUARE
             y_vals = np.sign(np.sin(x_vals))

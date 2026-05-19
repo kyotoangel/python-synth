@@ -2,10 +2,23 @@ import sys
 from PyQt6.QtWidgets import *
 from PyQt6.QtCore import *
 
+from audio import MoteurAudio
 from components.osc_widget import VitalOsc
 from components.envelope_widget import EnvelopeWidget
 from components.lfo_widget import LfoWidget
 from components.filter_widget import FilterWidget
+from synth import Synth
+import math
+
+
+def linear_to_db(value):
+    # Handle the -inf case (silence)
+    if value <= 0:
+        return float('-inf')
+
+    # Standard formula with your -18dB ceiling
+    db = 20 * math.log10(value) - 18
+    return db
 
 
 class MainWindow(QMainWindow):
@@ -19,6 +32,13 @@ class MainWindow(QMainWindow):
         self.setWindowTitle("PySynth")
         self.setStyleSheet("background: #070809;")
 
+        self.moteur = MoteurAudio()
+        self.synth = Synth(self.moteur)
+
+        self.synth.note_on(60)  # Do4
+
+        self.moteur.start(self.synth)
+
         central = QWidget()
         self.setCentralWidget(central)
 
@@ -27,7 +47,7 @@ class MainWindow(QMainWindow):
         root.setSpacing(4)
         root.setContentsMargins(8, 8, 8, 8)
 
-        # --- Colonne gauche : les 3 oscillateurs ---
+        # --- Colonne gauche  ---
         osc_col = QVBoxLayout()
         osc_col.setSpacing(2)
 
@@ -43,7 +63,7 @@ class MainWindow(QMainWindow):
 
         osc_col.addWidget(self.filter)
 
-        # --- Colonne droite : enveloppes + LFOs ---
+        # --- Colonne droite ---
         right_col = QVBoxLayout()
         right_col.setSpacing(4)
 
@@ -64,6 +84,11 @@ class MainWindow(QMainWindow):
         plus tard ça enverra les données au moteur audio.
         """
         print(f"OSC {osc_number} → {config}")
+
+        self.synth.waveform = config["waveform"]
+
+
+        self.moteur.volume = linear_to_db(config["level"])
 
 
 if __name__ == "__main__":
