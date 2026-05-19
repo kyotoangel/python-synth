@@ -6,6 +6,10 @@ class Synth:
         self.moteur = moteur
         self.waveform = waveform
         self.notes_actives = {}
+        self.attack = 0.05 # maximum 2 secondes d'attack
+        self.decay = 6 # 6 secondes maximum !!!
+        self.sustain = 0.8 # valeurs entre 0 et 1
+        self.release = 0.05 # maximum 2 secondes
 
     def _note_to_frequency(self, note):
         return self.moteur.tuning*2**((note-69)/12) #formule pour convert midi en fréquence
@@ -21,8 +25,15 @@ class Synth:
 
     def note_on(self, note):
         if note not in self.notes_actives:
-            self.notes_actives[note] = {"phase" : 0.0}
+            self.notes_actives[note] = {"phase" : 0.0,
+                                        "adsr_phase" : "attack", #état de l'enveloppe
+                                        "adsr_position" : 0.0} # position en seconde dans l'état
 
     def note_off(self, note):
         if note in self.notes_actives:
             del self.notes_actives[note] #on retire la note
+
+    def compute_adsr(self, frames, data): # data étant le dictionnaire de la note
+        enveloppe = np.zeros(frames)
+
+        return enveloppe
