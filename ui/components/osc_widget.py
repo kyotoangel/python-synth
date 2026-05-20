@@ -4,9 +4,9 @@ from PyQt6.QtCore import *
 from PyQt6.QtGui import *
 
 WIDGET_WIDTH  = 400
-WIDGET_HEIGHT = 180
-SCREEN_WIDTH  = 300
-SCREEN_HEIGHT = 120
+WIDGET_HEIGHT = 220
+SCREEN_WIDTH  = 384
+SCREEN_HEIGHT = 130
 
 WAVE_AMPLITUDE_RATIO = 1 / 3
 
@@ -49,7 +49,7 @@ class VitalOsc(QFrame):
         self._setup_ui()
 
     def _setup_ui(self):
-        layout = QHBoxLayout(self)
+        layout = QVBoxLayout(self)
 
         # Écran de visualisation
         self.screen = QLabel()
@@ -83,7 +83,7 @@ class VitalOsc(QFrame):
 
         ctrl.addStretch()
         ctrl.addWidget(lbl_level)
-        ctrl.addWidget(self.dial)
+        ctrl.addWidget(self.dial, alignment=Qt.AlignmentFlag.AlignCenter)
         ctrl.addStretch()
         layout.addLayout(ctrl)
 
