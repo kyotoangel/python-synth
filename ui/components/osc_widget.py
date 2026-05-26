@@ -43,7 +43,7 @@ class VitalOsc(QFrame):
         super().__init__()
 
         self.wf_types = ["SINE", "TRIANGLE", "SAW", "SQUARE"]
-        self.wf_idx = 1 # SINE par défaut
+        self.wf_idx = 0 # SINE par défaut
         self.level = 0.5
         self.tuning = 440
 
