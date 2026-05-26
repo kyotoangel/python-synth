@@ -10,10 +10,6 @@ class MoteurAudio:
         self.stream = None
         
     def play(self, samples: np.ndarray):
-        """
-        Allows the speakers to make the sound ! 
-        (takes a numpy array in argument, describing the waveform)
-        """
         gain_samples = samples * 10**(self.volume/20) #corrige avec le volume (dB deviennent linéaires)
         sd.play(gain_samples, self.sample_rate)
 
@@ -23,9 +19,6 @@ class MoteurAudio:
         self.stream.start()
 
     def stop(self):
-        """
-        Stops the sound
-        """
         sd.stop()
 
     def get_gain(self):
@@ -46,7 +39,7 @@ class MoteurAudio:
                 buffer += self.synth._compute_saw(phases)
             elif self.synth.waveform == "square":
                 buffer += self.synth._compute_square(phases)
-
+  
             data["phase"] = phases[-1] % 1.0
 
         outdata[:, 0] = buffer * self.get_gain()

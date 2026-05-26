@@ -31,9 +31,42 @@ class Synth:
 
     def note_off(self, note):
         if note in self.notes_actives:
-            del self.notes_actives[note] #on retire la note
+            self.notes_actives[note]["adsr_phase"] = "release"
+            self.notes_actives[note]["adsr_position"] = 0.0
 
-    def compute_adsr(self, frames, data): # data étant le dictionnaire de la note
+    def compute_adsr(self, frames, adsr_phase, adsr_position): # data étant le dictionnaire de la note
         enveloppe = np.zeros(frames)
+        if adsr_phase == "attack" :
+
+            adsr_position_arrivee = adsr_position + frames / self.moteur.sample_rate # secondes = buffer_size/freq_echantillonnage
+
+            depart_enveloppe = adsr_position / self.attack #valeur de l'enveloppe au début du buffer
+            arrivee_enveloppe = adsr_position_arrivee / self.attack #valeur de l'enveloppe à la fin du buffer
+
+            enveloppe = np.clip(np.linspace(depart_enveloppe, arrivee_enveloppe, frames), 0.0, 1.0)
+
+            adsr_position = adsr_position_arrivee
+
+            if arrivee_enveloppe >= 1 : adsr_phase = "decay"
+
+        if adsr_phase == "decay" :
+
+            depart_enveloppe = 1.0 - (adsr_position / self.decay) * (1.0 - self.sustain)
+
+            adsr_position_arrivee = adsr_position + frames / self.moteur.sample_rate
+
+            arrivee_enveloppe = 1.0 - (adsr_position_arrivee / self.decay) * (1.0 - self.sustain)
+
+            enveloppe = np.clip(np.linspace(depart_enveloppe, arrivee_enveloppe, frames), 0.0, 1.0)
+
+            adsr_position = adsr_position_arrivee
+
+            if arrivee_enveloppe <= self.sustain : adsr_phase = "release"
+
+        if adsr_phase == "release" :
+
+
+            if adsr_position >= self.release : del self.notes_actives
+            del self.notes_actives[note]  # on retire la note
 
         return enveloppe
