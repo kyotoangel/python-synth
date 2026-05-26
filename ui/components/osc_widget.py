@@ -36,9 +36,7 @@ STYLE_SLIDER = """
 class VitalOsc(QFrame):
     """
     Composant oscillateur simple et réutilisable. (bon codé un peu avec le cul quand même :3)
-
     """
-
     config_updated = pyqtSignal(dict)
 
     def __init__(self):

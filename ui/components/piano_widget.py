@@ -8,7 +8,7 @@ WHITE_H = 80
 BLACK_W = 14
 BLACK_H = 50
 N_OCTAVES = 5
-START_OCTAVE = 2          # octave de départ (Do2 = midi 36)
+START_OCTAVE = 2
 
 COLOR_WHITE       = QColor("#e8e8e8")
 COLOR_WHITE_HOVER = QColor("#b0eaff")
@@ -19,22 +19,13 @@ COLOR_BLACK_PRESS = QColor(0, 180, 220)
 COLOR_BORDER      = QColor("#333")
 COLOR_BG          = QColor("#070809")
 
-# pattern des touches noires dans une octave (index relatif aux blanches)
-# Do Ré Mi Fa Sol La Si  →  dièses entre 0-1, 1-2, 3-4, 4-5, 5-6
-BLACK_PATTERN = [0, 1, 3, 4, 5]   # position de la blanche à gauche du dièse
-
-# notes blanches dans une octave
-WHITE_NOTES = [0, 2, 4, 5, 7, 9, 11]   # demi-tons depuis Do
+BLACK_PATTERN = [0, 1, 3, 4, 5]
+WHITE_NOTES   = [0, 2, 4, 5, 7, 9, 11]
 
 
 def _build_keys(n_octaves, start_octave):
-    """
-    Retourne deux listes :
-      whites : [(x, midi), ...]
-      blacks  : [(x, midi), ...]
-    """
     whites, blacks = [], []
-    base_midi = (start_octave + 1) * 12   # Do du start_octave en MIDI
+    base_midi = (start_octave + 1) * 12
 
     for octave in range(n_octaves):
         oct_x = octave * 7 * WHITE_W
@@ -53,6 +44,7 @@ class PianoWidget(QWidget):
     """
     Clavier MIDI jouable à la souris.
     Émet note_on(midi) et note_off(midi).
+    Expose press_note / release_note pour le lecteur MIDI.
     """
 
     note_on  = pyqtSignal(int)
@@ -65,16 +57,28 @@ class PianoWidget(QWidget):
         self.setFixedSize(total_w, WHITE_H + 16)
         self.setStyleSheet("background: transparent;")
 
-        self._pressed  = None   # midi note actuellement enfoncée
-        self._hovered  = None
+        self._pressed_mouse = None
+        self._pressed_midi  : set = set()
 
         self.setMouseTracking(True)
+
+    # ── API publique pour le player ───────────────────────────
+
+    def press_note(self, midi: int):
+        self._pressed_midi.add(midi)
+        self.update()
+
+    def release_note(self, midi: int):
+        self._pressed_midi.discard(midi)
+        self.update()
+
+    def release_all(self):
+        self._pressed_midi.clear()
+        self.update()
 
     # ── hit-test ──────────────────────────────────────────────
 
     def _note_at(self, x, y):
-        """Retourne le numéro MIDI sous le curseur, ou None."""
-        # Les noires sont au-dessus → on les teste en premier
         if y < BLACK_H:
             for bx, midi in self._blacks:
                 if bx <= x <= bx + BLACK_W:
@@ -89,55 +93,40 @@ class PianoWidget(QWidget):
     def mousePressEvent(self, e):
         midi = self._note_at(int(e.position().x()), int(e.position().y()))
         if midi is not None:
-            self._pressed = midi
+            self._pressed_mouse = midi
             self.note_on.emit(midi)
             self.update()
 
     def mouseReleaseEvent(self, e):
-        if self._pressed is not None:
-            self.note_off.emit(self._pressed)
-            self._pressed = None
+        if self._pressed_mouse is not None:
+            self.note_off.emit(self._pressed_mouse)
+            self._pressed_mouse = None
             self.update()
 
     def mouseMoveEvent(self, e):
-        midi = self._note_at(int(e.position().x()), int(e.position().y()))
-        if midi != self._hovered:
-            self._hovered = midi
-            self.update()
+        self.update()
 
     def leaveEvent(self, e):
-        self._hovered = None
         self.update()
 
     # ── dessin ────────────────────────────────────────────────
 
+    def _is_pressed(self, midi):
+        return midi == self._pressed_mouse or midi in self._pressed_midi
+
     def paintEvent(self, e):
         p = QPainter(self)
         p.setRenderHint(QPainter.RenderHint.Antialiasing)
-
-        # fond
         p.fillRect(self.rect(), COLOR_BG)
 
-        # touches blanches
         for x, midi in self._whites:
-            if midi == self._pressed:
-                color = COLOR_WHITE_PRESS
-            elif midi == self._hovered:
-                color = COLOR_WHITE_HOVER
-            else:
-                color = COLOR_WHITE
+            color = COLOR_WHITE_PRESS if self._is_pressed(midi) else COLOR_WHITE
             p.fillRect(x, 8, WHITE_W - 1, WHITE_H, color)
             p.setPen(QPen(COLOR_BORDER, 1))
             p.drawRect(x, 8, WHITE_W - 1, WHITE_H)
 
-        # touches noires (par-dessus)
         for x, midi in self._blacks:
-            if midi == self._pressed:
-                color = COLOR_BLACK_PRESS
-            elif midi == self._hovered:
-                color = COLOR_BLACK_HOVER
-            else:
-                color = COLOR_BLACK
+            color = COLOR_BLACK_PRESS if self._is_pressed(midi) else COLOR_BLACK
             p.fillRect(x, 8, BLACK_W, BLACK_H, color)
             p.setPen(QPen(COLOR_BORDER, 1))
             p.drawRect(x, 8, BLACK_W, BLACK_H)
