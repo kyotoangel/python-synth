@@ -26,6 +26,7 @@ class MoteurAudio:
 
     def callback(self, outdata, frames, time, status):
         buffer = np.zeros(frames)
+        notes_a_supprimer = []
 
         for note, data in self.synth.notes_actives.items():
             frequence = self.synth._note_to_frequency(note)
@@ -34,12 +35,18 @@ class MoteurAudio:
             phases = phase + np.arange(frames) * frequence / self.sample_rate
 
             if self.synth.waveform == "sine" :
-                buffer += self.synth._compute_sine(phases)
+                buffer += self.synth._compute_sine(phases) * self.synth.compute_adsr(frames, self.synth.notes_actives[note])
             elif self.synth.waveform == "saw":
-                buffer += self.synth._compute_saw(phases)
+                buffer += self.synth._compute_saw(phases) * self.synth.compute_adsr(frames, self.synth.notes_actives[note])
             elif self.synth.waveform == "square":
-                buffer += self.synth._compute_square(phases)
-  
+                buffer += self.synth._compute_square(phases) * self.synth.compute_adsr(frames, self.synth.notes_actives[note])
+
             data["phase"] = phases[-1] % 1.0
+
+            if data["adsr_phase"] == "terminee":
+                notes_a_supprimer.append(note)
+
+        for note in notes_a_supprimer:
+            del self.synth.notes_actives[note]
 
         outdata[:, 0] = buffer * self.get_gain()
