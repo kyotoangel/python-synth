@@ -27,6 +27,11 @@ STYLE_ARROW_BTN   = """
 """
 STYLE_LEVEL_LABEL = "color: #555; font-size: 9px; font-weight: bold;"
 STYLE_DIAL        = f"background: {COLOR_BG_DIAL};"
+STYLE_SLIDER = """
+    QSlider::groove:horizontal { background: #1a1a1a; height: 4px; border-radius: 2px; }
+    QSlider::handle:horizontal { background: #00d4ff; width: 14px; height: 14px; margin: -5px 0; border-radius: 7px; }
+    QSlider::sub-page:horizontal { background: #00d4ff; height: 4px; border-radius: 2px; }
+"""
 
 class VitalOsc(QFrame):
     """
@@ -40,8 +45,9 @@ class VitalOsc(QFrame):
         super().__init__()
 
         self.wf_types = ["SINE", "TRIANGLE", "SAW", "SQUARE"]
-        self.wf_idx = 2 # SAWTOOTH par défaut
+        self.wf_idx = 1 # SINE par défaut
         self.level = 0.5
+        self.tuning = 440
 
         self.setFixedSize(WIDGET_WIDTH, WIDGET_HEIGHT)
         self.setStyleSheet(STYLE_WIDGET)
@@ -68,7 +74,7 @@ class VitalOsc(QFrame):
 
         layout.addWidget(self.screen)
 
-        # Knob LEVEL
+        # Control Layout
         ctrl = QVBoxLayout()
 
         self.dial = QDial()
@@ -85,7 +91,33 @@ class VitalOsc(QFrame):
         ctrl.addWidget(lbl_level)
         ctrl.addWidget(self.dial, alignment=Qt.AlignmentFlag.AlignCenter)
         ctrl.addStretch()
-        layout.addLayout(ctrl)
+
+        tuning_ctrl = QVBoxLayout()
+        tuning_ctrl.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        self.tuning_slider = QSlider(Qt.Orientation.Horizontal)
+        self.tuning_slider.setFixedWidth(120)
+        self.tuning_slider.setRange(430, 450)
+        self.tuning_slider.setValue(440)
+        self.tuning_slider.setSingleStep(1)
+        self.tuning_slider.setPageStep(1)
+        self.tuning_slider.setTickInterval(1)
+        self.tuning_slider.setStyleSheet(STYLE_SLIDER)
+        self.tuning_slider.valueChanged.connect(self._sync)
+        self.lbl_tuning_val = QLabel(f"{self.tuning} Hz")
+        self.lbl_tuning_val.setStyleSheet(STYLE_LEVEL_LABEL)
+        self.lbl_tuning_val.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        lbl_tuning = QLabel("TUNING")
+        lbl_tuning.setStyleSheet(STYLE_LEVEL_LABEL)
+        lbl_tuning.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        tuning_ctrl.addStretch()
+        tuning_ctrl.addWidget(lbl_tuning)
+        tuning_ctrl.addWidget(self.tuning_slider, alignment=Qt.AlignmentFlag.AlignCenter)
+        tuning_ctrl.addWidget(self.lbl_tuning_val)
+        tuning_ctrl.addStretch()
+        h_ctrl = QHBoxLayout()
+        h_ctrl.addLayout(ctrl)
+        h_ctrl.addLayout(tuning_ctrl)
+        layout.addLayout(h_ctrl)
 
         self._sync()
     
@@ -102,10 +134,13 @@ class VitalOsc(QFrame):
 
     def _sync(self):
         self.level = self.dial.value() / 100.0
+        self.tuning = self.tuning_slider.value()
         self._draw_wave()
+        self.lbl_tuning_val.setText(f"{self.tuning} Hz")
         self.config_updated.emit({
             "waveform": self.wf_types[self.wf_idx].lower(),
-            "level":    self.level
+            "level":    self.level,
+            "tuning":   self.tuning,
         })
 
     def _draw_wave(self):

@@ -36,7 +36,6 @@ class MainWindow(QMainWindow):
     Fenêtre principale qui assemble tous les composants
     comme dans l'interface de Vital.
     """
-
     def __init__(self):
         super().__init__()
         self.setWindowTitle("PySynth")
@@ -93,21 +92,17 @@ class MainWindow(QMainWindow):
     def _on_osc_change(self, osc_number, config):
         """
         Appelée quand un oscillateur change.
-        Pour l'instant on affiche juste dans le terminal —
-        plus tard ça enverra les données au moteur audio.
         """
         self.synth.waveform = config["waveform"]
 
-
         self.moteur.volume = linear_to_db(config["level"])
+        self.moteur.tuning = config["tuning"]
 
     def _on_env_change(self, env_number, config):
         self.synth.attack = interpoler(config["attack"], 0.05, 2)
         self.synth.decay = interpoler(config["decay"], 0, 6)
         self.synth.sustain = interpoler(config["sustain"], 0, 1)
         self.synth.release = interpoler(config["release"], 0.05, 2)
-
-        print(self.synth)
 
     def _on_note_on(self, midi):
         print(f"note_on  {midi}")
