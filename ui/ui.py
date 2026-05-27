@@ -5,7 +5,7 @@ from PyQt6.QtCore import *
 from audio import MoteurAudio
 from components.osc_widget import VitalOsc
 from components.envelope_widget import EnvelopeWidget
-from components.lfo_widget import LfoWidget
+from components.reverb_widget import ReverbWidget
 from components.filter_widget import FilterWidget
 from synth import Synth
 import math
@@ -52,7 +52,7 @@ class MainWindow(QMainWindow):
     """
     def __init__(self):
         super().__init__()
-        self.setWindowTitle("PySynth")
+        self.setWindowTitle("Synthétiseur Python Trop Cool")
         self.setStyleSheet("background: #070809;")
 
         self.moteur = MoteurAudio()
@@ -91,9 +91,9 @@ class MainWindow(QMainWindow):
 
         self.env = EnvelopeWidget()
         self.env.config_updated.connect(lambda cfg: self._on_env_change( cfg))
-        self.lfo = LfoWidget()
+        self.reverb = ReverbWidget()
         right_col.addWidget(self.env)
-        right_col.addWidget(self.lfo)
+        right_col.addWidget(self.reverb)
 
         top_row.addLayout(osc_col)
         top_row.addLayout(right_col)
@@ -164,7 +164,7 @@ class MainWindow(QMainWindow):
 
     def _on_midi_note_on(self, midi, velocity):
         self.piano.press_note(midi)
-        self.synth.note_on(midi)
+        self.synth.note_on(midi, velocity)
 
     def _on_midi_note_off(self, midi):
         self.piano.release_note(midi)

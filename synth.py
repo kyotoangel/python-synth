@@ -23,11 +23,12 @@ class Synth:
     def _compute_saw(self, phase):
         return (phase % 1.0) * 2 - 1
 
-    def note_on(self, note):
+    def note_on(self, note, velocity=100):
         if note not in self.notes_actives:
-            self.notes_actives[note] = {"phase" : 0.0,
-                                        "adsr_phase" : "attack", #état de l'enveloppe
-                                        "adsr_position" : 0.0} # position en seconde dans l'état
+            self.notes_actives[note] = {"phase": 0.0,
+                                        "adsr_phase": "attack",
+                                        "adsr_position": 0.0,
+                                        "velocity": velocity / 127.0}
 
     def note_off(self, note):
         if note in self.notes_actives:
