@@ -43,6 +43,8 @@ class MoteurAudio:
             elif self.synth.waveform == "square":
                 vel = data["velocity"]
                 buffer += self.synth._compute_square(phases) * self.synth.compute_adsr(frames, self.synth.notes_actives[note]) * vel
+            elif self.synth.waveform == "triangle":
+                buffer += self.synth._compute_triangle(phases) * self.synth.compute_adsr(frames, self.synth.notes_actives[note])
 
             data["phase"] = phases[-1] % 1.0
 
