@@ -1,4 +1,5 @@
 import numpy as np
+from scipy.signal import fftconvolve
 
 class Synth:
     def __init__(self, moteur: "MoteurAudio", waveform: str = "sine"):
@@ -22,8 +23,8 @@ class Synth:
 
         # reverb
 
-        self.decay = 4.0
-        self.mix = 0.5
+        self.reverb_mix = 0.3
+        self.ir = self.generate_ir(duration=1.0)
 
     def _note_to_frequency(self, note):
         return self.moteur.tuning*2**((note-69)/12) #formule pour convert midi en fréquence
@@ -105,6 +106,8 @@ class Synth:
 
         return enveloppe
 
+    # filtre
+
     def apply_filter(self, buffer):
         output = np.zeros(len(buffer))
         if self.filter_type == "low" :
@@ -119,5 +122,14 @@ class Synth:
 
         return output
 
+    # reverb
+
+    def generate_ir(self, duration=1.0):
+        samples = int(duration * self.moteur.sample_rate)
+        ir = np.random.randn(samples)  # bruit blanc
+        decay = np.exp(-3 * np.linspace(0, 1, samples))  # enveloppe exponentielle
+        return ir * decay
+
     def apply_reverb(self, buffer):
-        return
+        wet = fftconvolve(buffer, self.ir, mode='full')[:len(buffer)]
+        return (1 - self.reverb_mix) * buffer + self.reverb_mix * wet

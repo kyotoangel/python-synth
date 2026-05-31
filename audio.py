@@ -59,5 +59,6 @@ class MoteurAudio:
 
         # application du filtre
         buffer = self.synth.apply_filter(buffer)
+        buffer = self.synth.apply_reverb(buffer)
 
         outdata[:, 0] = buffer * self.get_gain()
