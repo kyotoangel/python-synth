@@ -1,15 +1,29 @@
 import numpy as np
-#from audio import MoteurAudio
 
 class Synth:
     def __init__(self, moteur: "MoteurAudio", waveform: str = "sine"):
         self.moteur = moteur
         self.waveform = waveform
         self.notes_actives = {}
+
+        # enveloppe ADSR
         self.attack = 0.05 # maximum 2 secondes d'attack
         self.decay = 6 # 6 secondes maximum !!!
         self.sustain = 0.8 # valeurs entre 0 et 1
         self.release = 0.05 # maximum 2 secondes
+
+        # filtre
+        self.filter_cutoff = 1000  # entre 0 et 1 - fréquence de coupure
+        self.filter_prev = 0.0  # mémoire entre buffers
+        self.filter_active = True
+        self.filter_type = "low"
+
+        self.filter_alpha = 1 - np.exp(-2 * np.pi * self.filter_cutoff / self.moteur.sample_rate)
+
+        # reverb
+
+        self.decay = 4.0
+        self.mix = 0.5
 
     def _note_to_frequency(self, note):
         return self.moteur.tuning*2**((note-69)/12) #formule pour convert midi en fréquence
@@ -90,3 +104,20 @@ class Synth:
                 data["adsr_position"] = 0.0
 
         return enveloppe
+
+    def apply_filter(self, buffer):
+        output = np.zeros(len(buffer))
+        if self.filter_type == "low" :
+            for i in range(len(buffer)):
+                self.filter_prev = self.filter_alpha * buffer[i] + (1 - self.filter_alpha) * self.filter_prev
+                output[i] = self.filter_prev
+        elif self.filter_type == "high" :
+            for i in range(len(buffer)):
+                self.filter_prev = self.filter_alpha * buffer[i] + (1 - self.filter_alpha) * self.filter_prev
+
+                output[i] = self.filter_prev
+
+        return output
+
+    def apply_reverb(self, buffer):
+        return
