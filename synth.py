@@ -24,7 +24,8 @@ class Synth:
         # reverb
 
         self.reverb_mix = 0.3
-        self.ir = self.generate_ir(duration=1.0)
+        self.decay = 4.00
+        self.ir = self.generate_ir(duration=self.decay)
 
     def _note_to_frequency(self, note):
         return self.moteur.tuning*2**((note-69)/12) #formule pour convert midi en fréquence
