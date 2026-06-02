@@ -136,11 +136,12 @@ class Synth:
     # reverb
 
     def apply_reverb(self, buffer):
-        # 1. On crée le Dual-Mono (Stéréo) en dupliquant le buffer
+        # actualisation des valeurs renvoyées par l'ui d'antoine
+        self.reverb.wet_level = self.reverb_mix
+        self.reverb.dry_level = 1.0 - self.reverb_mix
+
         audio_2d = np.array([buffer])
 
-        # 2. L'argument MAGIQUE (reset=False) pour garder la réverbération active
         processed = self.reverb(audio_2d, self.moteur.sample_rate, reset=False)
 
-        # 3. On renvoie le bloc stéréo complet
         return processed[0]
