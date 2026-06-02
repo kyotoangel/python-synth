@@ -179,9 +179,6 @@ class MainWindow(QMainWindow):
         self.piano.release_all()
 
     def _on_osc_change(self, config):
-        """
-        Appelée quand un oscillateur change.
-        """
         self.synth.waveform = config["waveform"]
 
         self.moteur.volume = linear_to_db(config["level"])
@@ -189,8 +186,8 @@ class MainWindow(QMainWindow):
 
     def _on_env_change(self, config):
         self.synth.attack = interpoler(config["attack"], 0.05, 0.5)
-        self.synth.decay = interpoler(config["decay"], 0, 6)
-        self.synth.sustain = interpoler(config["sustain"], 0, 1)
+        self.synth.decay = interpoler(config["decay"], 0.05, 6)
+        self.synth.sustain = interpoler(config["sustain"], 0.05, 1)
         self.synth.release = interpoler(config["release"], 0.05, 2)
         print(self.synth.attack, self.synth.decay, self.synth.sustain, self.synth.release)
 
@@ -200,8 +197,9 @@ class MainWindow(QMainWindow):
         self.synth.filter_active = config["active"]
 
     def _on_reverb_change(self, config):
+        print(config)
         self.synth.reverb_mix = interpoler(config["reverb_mix"], 0, 100)
-        self.synth.decay = config["decay"]
+        self.synth.room_size = interpoler(config["decay"], 0.05, 1)
         self.synth.damping = config["damping"]
     def _on_note_on(self, midi):
         self.synth.note_on(midi)

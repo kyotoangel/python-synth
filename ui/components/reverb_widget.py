@@ -4,10 +4,7 @@ from PyQt6.QtCore import Qt, QTimer, pyqtSignal
 from PyQt6.QtGui import QPainter, QPen, QPainterPath, QLinearGradient, QColor, QPixmap
 from PyQt6.QtCore import QPointF
 
-from components.base_component import (
-    SynthComponent,
-    COLOR_CYAN, COLOR_CYAN_GLOW, COLOR_CYAN_FILL,
-)
+from components.base_component import SynthComponent
 
 WIDGET_HEIGHT = 250
 SCREEN_HEIGHT = 160

@@ -46,6 +46,7 @@ class VitalOsc(SynthComponent):
         ctrl = QVBoxLayout()
 
         self.dial = self._make_dial(ctrl, "LEVEL", 50, 45, 45)
+        self.dial.valueChanged.connect(self._sync)
 
         tuning_ctrl = QVBoxLayout()
         tuning_ctrl.setAlignment(Qt.AlignmentFlag.AlignCenter)
