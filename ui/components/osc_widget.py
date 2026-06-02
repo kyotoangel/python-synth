@@ -53,9 +53,9 @@ class VitalOsc(SynthComponent):
 
         self.tuning_slider = QSlider(Qt.Orientation.Horizontal)
         self.tuning_slider.setFixedWidth(120)
-        self.tuning_slider.setRange(430, 450)
+        self.tuning_slider.setRange(200, 600)
         self.tuning_slider.setValue(440)
-        self.tuning_slider.setSingleStep(1)
+        self.tuning_slider.setSingleStep(5)
         self.tuning_slider.setStyleSheet(STYLE_SLIDER)
         self.tuning_slider.valueChanged.connect(self._sync)
 
