@@ -11,23 +11,23 @@ from PyQt6.QtCore import Qt, pyqtSignal
 from PyQt6.QtGui import QColor
 
 # ── Dimensions par défaut ─────────────────────────────────────
-WIDGET_WIDTH  = 400
+WIDGET_WIDTH = 400
 WIDGET_HEIGHT = 220
-SCREEN_WIDTH  = 384
+SCREEN_WIDTH = 384
 SCREEN_HEIGHT = 130
 
 # ── Palette commune ───────────────────────────────────────────
-COLOR_CYAN       = QColor(0, 212, 255)
-COLOR_CYAN_GLOW  = QColor(0, 212, 255, 80)
-COLOR_CYAN_FILL  = QColor(0, 212, 255, 60)
+COLOR_CYAN = QColor(0, 212, 255)
+COLOR_CYAN_GLOW = QColor(0, 212, 255, 80)
+COLOR_CYAN_FILL = QColor(0, 212, 255, 60)
 
 # ── Styles communs ────────────────────────────────────────────
 STYLE_WIDGET = "background: #070809; border: none;"
 STYLE_SCREEN = "background: black; border-radius: 8px; border: 1px solid #1a1a1a;"
 STYLE_TITLE_LABEL = "color: #eee; font-size: 11px; font-weight: bold; background: transparent;"
-STYLE_KNOB_LABEL  = "color: #555; font-size: 9px; font-weight: bold;"
-STYLE_DIAL        = "background: #1a1a1a;"
-STYLE_ARROW_BTN   = """
+STYLE_KNOB_LABEL = "color: #555; font-size: 9px; font-weight: bold;"
+STYLE_DIAL = "background: #1a1a1a;"
+STYLE_ARROW_BTN = """
     QPushButton       { color: #555; background: transparent; font-size: 14px; border: none; }
     QPushButton:hover { color: white; }
 """
@@ -45,48 +45,28 @@ class SynthComponent(QFrame):
       - `_make_dial(layout, name, default)` (méthode d'instance)
       - signal `config_updated(dict)`
       - méthode `_sync()` à surcharger : appelle `_draw()` puis émet le signal
-
-    Utilisation minimale dans une sous-classe :
-
-        class MonWidget(SynthComponent):
-            def __init__(self):
-                super().__init__(screen_height=160)   # hauteur custom si besoin
-                self._make_screen("MON WIDGET")
-                # … construire le reste de l'UI …
-                self._sync()
-
-            def _draw(self):
-                # dessiner sur self.screen avec QPixmap / QPainter
-                ...
-
-            def _config(self) -> dict:
-                return {"param": self.dial.value()}
     """
 
     config_updated = pyqtSignal(dict)
 
-    # ── Constructeur ──────────────────────────────────────────
     def __init__(
         self,
-        widget_width:  int = WIDGET_WIDTH,
+        widget_width: int = WIDGET_WIDTH,
         widget_height: int = WIDGET_HEIGHT,
-        screen_width:  int = SCREEN_WIDTH,
+        screen_width: int = SCREEN_WIDTH,
         screen_height: int = SCREEN_HEIGHT,
     ):
         super().__init__()
-        self.widget_width  = widget_width
+        self.widget_width = widget_width
         self.widget_height = widget_height
-        self.screen_width  = screen_width
+        self.screen_width = screen_width
         self.screen_height = screen_height
 
         self.setFixedSize(widget_width, widget_height)
         self.setStyleSheet(STYLE_WIDGET)
 
-        # sera créé par _make_screen()
-        self.screen:    QLabel | None = None
+        self.screen: QLabel | None = None
         self.lbl_title: QLabel | None = None
-
-    # ── Helpers de construction ───────────────────────────────
 
     def _make_screen(self, title: str = "") -> QLabel:
         """
@@ -141,8 +121,6 @@ class SynthComponent(QFrame):
         parent_layout.addLayout(col)
         return dial
 
-    # ── Cycle de mise à jour ──────────────────────────────────
-
     def _sync(self):
         """
         À appeler à chaque changement d'un contrôle.
@@ -150,8 +128,6 @@ class SynthComponent(QFrame):
         """
         self._draw()
         self.config_updated.emit(self._config())
-
-    # ── À surcharger obligatoirement ──────────────────────────
 
     def _draw(self):
         """Redessiner le contenu de self.screen."""

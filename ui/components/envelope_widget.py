@@ -49,8 +49,8 @@ class EnvelopeWidget(SynthComponent):
         }
 
     def _draw(self):
-        w, h  = self.screen_width, self.screen_height
-        cfg   = self._config()
+        w, h = self.screen_width, self.screen_height
+        cfg = self._config()
 
         total = cfg["attack"] + cfg["decay"] + 0.3 + cfg["release"] or 1
 
@@ -60,9 +60,9 @@ class EnvelopeWidget(SynthComponent):
         x_d = x_a + seg(cfg["decay"])
         x_r = x_d + seg(cfg["release"])
 
-        top    = int(h * 0.25)
+        top = int(h * 0.25)
         bottom = int(h * 0.9)
-        sus_y  = int(bottom - cfg["sustain"] * (bottom - top))
+        sus_y = int(bottom - cfg["sustain"] * (bottom - top))
 
         pts = [
             QPointF(0,   bottom),

@@ -1,9 +1,6 @@
 import numpy as np
 import sounddevice as sd
 
-from synth import Synth
-
-
 class MoteurAudio:
     def __init__(self, sample_rate: int = 44100, volume: float = -25.0, tuning: int = 440, buffer_size = 256) -> None:
         self.sample_rate = sample_rate

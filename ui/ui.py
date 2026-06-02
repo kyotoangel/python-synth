@@ -28,11 +28,9 @@ STYLE_BTN = """
 
 
 def linear_to_db(value):
-    # Handle the -inf case (silence)
     if value <= 0:
         return float('-inf')
 
-    # Standard formula with your -18dB ceiling
     db = 20 * math.log10(value) - 18
     return db
 
@@ -64,12 +62,10 @@ class MainWindow(QMainWindow):
         central = QWidget()
         self.setCentralWidget(central)
 
-        # Layout racine : tout en colonne
         root = QVBoxLayout(central)
         root.setSpacing(4)
         root.setContentsMargins(8, 8, 8, 8)
 
-        # ── Rangée du haut : OSC | ENV+LFO ──
         top_row = QHBoxLayout()
         top_row.setSpacing(4)
 
@@ -123,7 +119,6 @@ class MainWindow(QMainWindow):
         root.addLayout(top_row)
         root.addLayout(piano_row)
 
-    # ── MIDI file ─────────────────────────────────────────────
     def _open_midi(self):
         path, _ = QFileDialog.getOpenFileName(
             self, "Ouvrir un fichier MIDI", "", "MIDI (*.mid *.midi)"
@@ -131,7 +126,6 @@ class MainWindow(QMainWindow):
         if not path:
             return
 
-        # Arrête un éventuel player déjà en cours
         if self._midi_player is not None:
             self._midi_player.stop()
             self._midi_player.wait()

@@ -1,6 +1,5 @@
 from audio import MoteurAudio
 from synth import Synth
-import sounddevice as sd
 import time
 
 if __name__ == '__main__':

@@ -10,17 +10,17 @@ BLACK_H = 50
 N_OCTAVES = 5
 START_OCTAVE = 2
 
-COLOR_WHITE       = QColor("#e8e8e8")
+COLOR_WHITE = QColor("#e8e8e8")
 COLOR_WHITE_HOVER = QColor("#b0eaff")
 COLOR_WHITE_PRESS = QColor(0, 212, 255)
-COLOR_BLACK       = QColor("#111")
+COLOR_BLACK = QColor("#111")
 COLOR_BLACK_HOVER = QColor("#1a7a99")
 COLOR_BLACK_PRESS = QColor(0, 180, 220)
-COLOR_BORDER      = QColor("#333")
-COLOR_BG          = QColor("#070809")
+COLOR_BORDER = QColor("#333")
+COLOR_BG = QColor("#070809")
 
 BLACK_PATTERN = [0, 1, 3, 4, 5]
-WHITE_NOTES   = [0, 2, 4, 5, 7, 9, 11]
+WHITE_NOTES = [0, 2, 4, 5, 7, 9, 11]
 
 
 def _build_keys(n_octaves, start_octave):
@@ -41,13 +41,8 @@ def _build_keys(n_octaves, start_octave):
 
 
 class PianoWidget(QWidget):
-    """
-    Clavier MIDI jouable à la souris.
-    Émet note_on(midi) et note_off(midi).
-    Expose press_note / release_note pour le lecteur MIDI.
-    """
 
-    note_on  = pyqtSignal(int)
+    note_on = pyqtSignal(int)
     note_off = pyqtSignal(int)
 
     def __init__(self):
@@ -58,11 +53,9 @@ class PianoWidget(QWidget):
         self.setStyleSheet("background: transparent;")
 
         self._pressed_mouse = None
-        self._pressed_midi  : set = set()
+        self._pressed_midi : set = set()
 
         self.setMouseTracking(True)
-
-    # ── API publique pour le player ───────────────────────────
 
     def press_note(self, midi: int):
         self._pressed_midi.add(midi)
@@ -76,8 +69,6 @@ class PianoWidget(QWidget):
         self._pressed_midi.clear()
         self.update()
 
-    # ── hit-test ──────────────────────────────────────────────
-
     def _note_at(self, x, y):
         if y < BLACK_H:
             for bx, midi in self._blacks:
@@ -87,8 +78,6 @@ class PianoWidget(QWidget):
             if wx <= x <= wx + WHITE_W:
                 return midi
         return None
-
-    # ── events souris ─────────────────────────────────────────
 
     def mousePressEvent(self, e):
         midi = self._note_at(int(e.position().x()), int(e.position().y()))
@@ -108,8 +97,6 @@ class PianoWidget(QWidget):
 
     def leaveEvent(self, e):
         self.update()
-
-    # ── dessin ────────────────────────────────────────────────
 
     def _is_pressed(self, midi):
         return midi == self._pressed_mouse or midi in self._pressed_midi

@@ -9,7 +9,7 @@ from components.base_component import (
     COLOR_CYAN, COLOR_CYAN_GLOW, COLOR_CYAN_FILL,
 )
 
-WIDGET_HEIGHT    = 220
+WIDGET_HEIGHT = 220
 WAVE_AMPLITUDE_RATIO = 1 / 3
 
 STYLE_SLIDER = """
@@ -27,9 +27,9 @@ class VitalOsc(SynthComponent):
         super().__init__(widget_height=WIDGET_HEIGHT)
 
         self.wf_types = ["SINE", "TRIANGLE", "SAW", "SQUARE"]
-        self.wf_idx   = 0
-        self.level    = 0.5
-        self.tuning   = 440
+        self.wf_idx = 0
+        self.level = 0.5
+        self.tuning = 440
 
         self._setup_ui()
 
@@ -86,7 +86,7 @@ class VitalOsc(SynthComponent):
         self._sync()
 
     def _sync(self):
-        self.level  = self.dial.value() / 100.0
+        self.level = self.dial.value() / 100.0
         self.tuning = self.tuning_slider.value()
         self.lbl_tuning_val.setText(f"{self.tuning} Hz")
         super()._sync()
@@ -94,8 +94,8 @@ class VitalOsc(SynthComponent):
     def _config(self) -> dict:
         return {
             "waveform": self.wf_types[self.wf_idx].lower(),
-            "level":    self.level,
-            "tuning":   self.tuning,
+            "level": self.level,
+            "tuning": self.tuning,
         }
 
     # ── Dessin ────────────────────────────────────────────────
@@ -110,7 +110,7 @@ class VitalOsc(SynthComponent):
         p.setRenderHint(QPainter.RenderHint.Antialiasing)
 
         x_vals = np.linspace(0, 2 * np.pi, w)
-        wf     = self.wf_types[self.wf_idx]
+        wf = self.wf_types[self.wf_idx]
 
         if wf == "SINE":
             y_vals = np.sin(x_vals)
@@ -122,7 +122,7 @@ class VitalOsc(SynthComponent):
             y_vals = np.sign(np.sin(x_vals))
 
         amplitude = self.level * h * WAVE_AMPLITUDE_RATIO
-        points    = [QPointF(i, h / 2 - y_vals[i] * amplitude) for i in range(w)]
+        points = [QPointF(i, h / 2 - y_vals[i] * amplitude) for i in range(w)]
 
         curve = QPainterPath()
         curve.addPolygon(QPolygonF(points))

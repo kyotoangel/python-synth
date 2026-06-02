@@ -18,8 +18,8 @@ STYLE_SLIDER = """
     QSlider::sub-page:horizontal { background: #00d4ff; height: 4px; border-radius: 2px; }
 """
 
-FREQ_MIN    = 20.0
-FREQ_MAX    = 20000.0
+FREQ_MIN = 20.0
+FREQ_MAX = 20000.0
 
 FILTER_TYPES = ["LOW PASS", "HIGH PASS"]
 
@@ -41,7 +41,7 @@ class FilterWidget(SynthComponent):
     def __init__(self):
         super().__init__(widget_height=WIDGET_HEIGHT, screen_height=SCREEN_HEIGHT)
 
-        self.filter_idx  = 0
+        self.filter_idx = 0
         self.cutoff_norm = 0.5
         self.cutoff = self._norm_to_freq(self.cutoff_norm)
 
@@ -90,8 +90,8 @@ class FilterWidget(SynthComponent):
     def _config(self) -> dict:
         return {
             "filter_type": FILTER_TYPES[self.filter_idx].lower().replace(" ", "_"),
-            "cutoff":      self.cutoff,
-            "active":      True,
+            "cutoff": self.cutoff,
+            "active": True,
         }
 
     @staticmethod
@@ -101,12 +101,12 @@ class FilterWidget(SynthComponent):
     # ── Dessin ────────────────────────────────────────────────
 
     def _draw(self):
-        w     = self.screen_width
-        h     = self.screen_height - 20
+        w = self.screen_width
+        h = self.screen_height - 20
         y_off = 20
 
         cutoff = self._norm_to_freq(self.cutoff_norm)
-        freqs  = np.logspace(np.log10(FREQ_MIN), np.log10(FREQ_MAX), w)
+        freqs = np.logspace(np.log10(FREQ_MIN), np.log10(FREQ_MAX), w)
 
         mag = (_lp_response if self.filter_idx == 0 else _hp_response)(freqs, cutoff)
         mag = np.clip(mag, 0, 1)
@@ -117,7 +117,7 @@ class FilterWidget(SynthComponent):
         p = QPainter(pixmap)
         p.setRenderHint(QPainter.RenderHint.Antialiasing)
 
-        pts    = [QPointF(i, y_off + (1.0 - mag[i]) * (h - 4)) for i in range(w)]
+        pts = [QPointF(i, y_off + (1.0 - mag[i]) * (h - 4)) for i in range(w)]
         bottom = float(y_off + h - 4)
 
         curve = QPainterPath()

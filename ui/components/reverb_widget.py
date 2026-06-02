@@ -1,8 +1,5 @@
-import numpy as np
-from PyQt6.QtWidgets import QHBoxLayout, QSlider
-from PyQt6.QtCore import Qt, QTimer, pyqtSignal
-from PyQt6.QtGui import QPainter, QPen, QPainterPath, QLinearGradient, QColor, QPixmap
-from PyQt6.QtCore import QPointF
+from PyQt6.QtWidgets import QHBoxLayout, QLabel
+from PyQt6.QtCore import pyqtSignal, Qt
 
 from components.base_component import SynthComponent
 

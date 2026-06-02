@@ -7,7 +7,7 @@ class MidiPlayer(QThread):
     Lit un fichier MIDI dans un thread séparé.
     Émet note_on(midi, velocity) et note_off(midi) avec le bon timing.
     """
-    note_on  = pyqtSignal(int, int)   # midi, velocity
+    note_on = pyqtSignal(int, int)   # midi, velocity
     note_off = pyqtSignal(int)
     finished = pyqtSignal()
 
