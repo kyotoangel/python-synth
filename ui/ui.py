@@ -189,7 +189,6 @@ class MainWindow(QMainWindow):
         self.synth.decay = interpoler(config["decay"], 0.05, 6)
         self.synth.sustain = interpoler(config["sustain"], 0.05, 1)
         self.synth.release = interpoler(config["release"], 0.05, 2)
-        print(self.synth.attack, self.synth.decay, self.synth.sustain, self.synth.release)
 
     def _on_filter_change(self, config):
         self.synth.filter_cutoff = config["cutoff"]
@@ -197,9 +196,8 @@ class MainWindow(QMainWindow):
         self.synth.filter_active = config["active"]
 
     def _on_reverb_change(self, config):
-        print(config)
         self.synth.reverb_mix = config["reverb_mix"]
-        self.synth.room_size = interpoler(config["decay"], 0.05, 1)
+        self.synth.room_size = interpoler(config["decay"], 0, 1)
         self.synth.damping = config["damping"]
     def _on_note_on(self, midi):
         self.synth.note_on(midi)

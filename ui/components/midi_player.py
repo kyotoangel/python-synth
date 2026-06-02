@@ -13,7 +13,7 @@ class MidiPlayer(QThread):
 
     def __init__(self, path: str):
         super().__init__()
-        self._path    = path
+        self._path = path
         self._stopped = False
 
     def stop(self):

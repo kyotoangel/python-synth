@@ -24,9 +24,9 @@ class ReverbWidget(SynthComponent):
         knobs.setSpacing(10)
         knobs.addStretch()
 
-        self.dial_mix = self._make_dial(knobs, "MIX",  20, 50, 50)
-        self.dial_decay = self._make_dial(knobs, "DECAY",   30, 50, 50)
-        self.dial_damping = self._make_dial(knobs, "DAMPING", 70, 50, 50)
+        self.dial_mix = self._make_dial(knobs, "MIX",  50, 50, 50)
+        self.dial_decay = self._make_dial(knobs, "DECAY",   50, 50, 50)
+        self.dial_damping = self._make_dial(knobs, "DAMPING", 50, 50, 50)
 
         for dial in (self.dial_mix, self.dial_decay, self.dial_damping):
             dial.valueChanged.connect(self._sync)

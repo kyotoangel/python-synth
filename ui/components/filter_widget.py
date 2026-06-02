@@ -1,5 +1,5 @@
 import numpy as np
-from PyQt6.QtWidgets import QHBoxLayout, QSlider, QLabel
+from PyQt6.QtWidgets import QHBoxLayout, QSlider, QLabel, QVBoxLayout
 from PyQt6.QtCore import Qt, QTimer, pyqtSignal
 from PyQt6.QtGui import QPainter, QPen, QPainterPath, QLinearGradient, QColor, QPixmap
 from PyQt6.QtCore import QPointF
@@ -48,9 +48,11 @@ class FilterWidget(SynthComponent):
         self._setup_ui()
 
     def _setup_ui(self):
-        layout = QHBoxLayout(self)
+        layout = QVBoxLayout(self)
 
-        layout.addWidget(self._make_screen(FILTER_TYPES[self.filter_idx]))
+        screen_layout = QHBoxLayout()
+
+        screen_layout.addWidget(self._make_screen(FILTER_TYPES[self.filter_idx]))
 
         btn_prev = self._make_arrow("<", x=0)
         btn_next = self._make_arrow(">", x=self.screen_width - 20)
@@ -65,11 +67,12 @@ class FilterWidget(SynthComponent):
         self.slider.setStyleSheet(STYLE_SLIDER)
         self.slider.valueChanged.connect(self._sync)
 
-        self.lbl_tuning_val = QLabel(f"{self.cutoff} Hz")
-        self.lbl_tuning_val.setStyleSheet("color: #555; font-size: 9px; font-weight: bold;")
-        self.lbl_tuning_val.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        self.lbl_cutoff_val = QLabel(f"{self.cutoff} Hz")
+        self.lbl_cutoff_val.setStyleSheet("color: #555; font-size: 9px; font-weight: bold;")
+        self.lbl_cutoff_val.setAlignment(Qt.AlignmentFlag.AlignCenter)
 
-        layout.addWidget(self.lbl_tuning_val)
+        layout.addLayout(screen_layout)
+        layout.addWidget(self.lbl_cutoff_val)
 
         self._sync()
 
@@ -81,7 +84,7 @@ class FilterWidget(SynthComponent):
     def _sync(self):
         self.cutoff_norm = self.slider.value() / 1000.0
         self.cutoff = self._norm_to_freq(self.cutoff_norm)
-        self.lbl_tuning_val.setText(f"{self.cutoff} Hz")
+        self.lbl_cutoff_val.setText(f"{self.cutoff} Hz")
         super()._sync()
 
     def _config(self) -> dict:
@@ -93,7 +96,7 @@ class FilterWidget(SynthComponent):
 
     @staticmethod
     def _norm_to_freq(norm: float) -> float:
-        return FREQ_MIN * (FREQ_MAX / FREQ_MIN) ** norm
+        return int(FREQ_MIN * (FREQ_MAX / FREQ_MIN) ** norm)
 
     # ── Dessin ────────────────────────────────────────────────
 
