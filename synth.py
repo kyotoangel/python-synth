@@ -17,13 +17,13 @@ class Synth:
         self.filter_cutoff = 1000  # entre 0 et 1 - fréquence de coupure
         self.filter_prev = 0.0  # mémoire entre buffers
         self.filter_active = True
-        self.filter_type = "low"
+        self.filter_type = "low_pass"
 
         self.filter_alpha = 1 - np.exp(-2 * np.pi * self.filter_cutoff / self.moteur.sample_rate)
 
         # reverb
 
-        self.reverb_mix = 0.0
+        self.reverb_mix = 1
         self.reverb_decay = 4.00
         self.ir = self.generate_ir(duration=self.reverb_decay)
 
