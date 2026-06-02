@@ -198,7 +198,7 @@ class MainWindow(QMainWindow):
 
     def _on_reverb_change(self, config):
         print(config)
-        self.synth.reverb_mix = interpoler(config["reverb_mix"], 0, 100)
+        self.synth.reverb_mix = config["reverb_mix"]
         self.synth.room_size = interpoler(config["decay"], 0.05, 1)
         self.synth.damping = config["damping"]
     def _on_note_on(self, midi):
