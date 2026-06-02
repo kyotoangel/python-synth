@@ -1,5 +1,6 @@
 import numpy as np
 from scipy.signal import fftconvolve
+from pedalboard import Reverb
 
 class Synth:
     def __init__(self, moteur: "MoteurAudio", waveform: str = "sine"):
@@ -23,9 +24,16 @@ class Synth:
 
         # reverb
 
-        self.reverb_mix = 0
-        self.reverb_decay = 4.00
-        self.ir = self.generate_ir(duration=self.reverb_decay)
+        self.reverb_mix = 0.5 # de 0% à 100%
+        self.room_size = 0.5 #valeur de 0 à 1
+        self.damping = 0.0 #valeur de 0 à 1 ?
+
+        self.reverb = Reverb(
+            room_size = self.room_size,
+            damping = 0.5,
+            wet_level = self.reverb_mix,
+            dry_level = 1 - self.reverb_mix
+        )
 
     def _note_to_frequency(self, note):
         return self.moteur.tuning*2**((note-69)/12) #formule pour convert midi en fréquence
@@ -127,12 +135,9 @@ class Synth:
 
     # reverb
 
-    def generate_ir(self, duration=1.0):
-        samples = int(duration * self.moteur.sample_rate)
-        ir = np.random.randn(samples)  # bruit blanc
-        decay = np.exp(-3 * np.linspace(0, 1, samples))  # enveloppe exponentielle
-        return ir * decay
-
     def apply_reverb(self, buffer):
-        wet = fftconvolve(buffer, self.ir, mode='full')[:len(buffer)]
-        return (1 - self.reverb_mix) * buffer + self.reverb_mix * wet
+
+        audio_2d = np.array([buffer])
+        processed = self.reverb(audio_2d, self.moteur.sample_rate)
+
+        return processed[0]
