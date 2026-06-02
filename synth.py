@@ -23,7 +23,7 @@ class Synth:
 
         # reverb
 
-        self.reverb_mix = 0.3
+        self.reverb_mix = 0.0
         self.reverb_decay = 4.00
         self.ir = self.generate_ir(duration=self.reverb_decay)
 

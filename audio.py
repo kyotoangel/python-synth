@@ -61,7 +61,4 @@ class MoteurAudio:
         buffer = self.synth.apply_filter(buffer)
         buffer = self.synth.apply_reverb(buffer)
 
-        if hasattr(self.synth, '_filter_widget') and self.synth._filter_widget is not None:
-            self.synth._filter_widget.update_fft(buffer)
-
         outdata[:, 0] = buffer * self.get_gain()
