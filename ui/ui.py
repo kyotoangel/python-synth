@@ -83,7 +83,6 @@ class MainWindow(QMainWindow):
         osc_col.addStretch()
 
         self.filter = FilterWidget()
-        self.synth._filter_widget = self.filter
         self.filter.config_updated.connect(lambda cfg: self._on_filter_change(cfg))
         osc_col.addWidget(self.filter)
 
@@ -93,14 +92,16 @@ class MainWindow(QMainWindow):
 
         self.env = EnvelopeWidget()
         self.env.config_updated.connect(lambda cfg: self._on_env_change( cfg))
+
         self.reverb = ReverbWidget()
+        self.reverb.config_updated.connect(lambda cfg: self._on_reverb_change( cfg))
+
         right_col.addWidget(self.env)
         right_col.addWidget(self.reverb)
 
         top_row.addLayout(osc_col)
         top_row.addLayout(right_col)
 
-        # ── Rangée piano + bouton ──
         piano_row = QHBoxLayout()
         piano_row.setSpacing(8)
         piano_row.setAlignment(Qt.AlignmentFlag.AlignHCenter)
@@ -187,7 +188,7 @@ class MainWindow(QMainWindow):
         self.moteur.tuning = config["tuning"]
 
     def _on_env_change(self, config):
-        self.synth.attack = interpoler(config["attack"], 0.05, 2)
+        self.synth.attack = interpoler(config["attack"], 0.05, 0.5)
         self.synth.decay = interpoler(config["decay"], 0, 6)
         self.synth.sustain = interpoler(config["sustain"], 0, 1)
         self.synth.release = interpoler(config["release"], 0.05, 2)
@@ -198,6 +199,10 @@ class MainWindow(QMainWindow):
         self.synth.filter_type = config["filter_type"]
         self.synth.filter_active = config["active"]
 
+    def _on_reverb_change(self, config):
+        self.synth.reverb_mix = interpoler(config["mix"], 0, 100)
+        self.synth.decay = config["decay"]
+        self.synth.damping = config["damping"]
     def _on_note_on(self, midi):
         self.synth.note_on(midi)
 
