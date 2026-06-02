@@ -24,8 +24,8 @@ class Synth:
         # reverb
 
         self.reverb_mix = 0.3
-        self.decay = 4.00
-        self.ir = self.generate_ir(duration=self.decay)
+        self.reverb_decay = 4.00
+        self.ir = self.generate_ir(duration=self.reverb_decay)
 
     def _note_to_frequency(self, note):
         return self.moteur.tuning*2**((note-69)/12) #formule pour convert midi en fréquence
@@ -110,17 +110,19 @@ class Synth:
     # filtre
 
     def apply_filter(self, buffer):
+        self.filter_alpha = 1 - np.exp(-2 * np.pi * self.filter_cutoff / self.moteur.sample_rate)
         output = np.zeros(len(buffer))
-        if self.filter_type == "low" :
+        if self.filter_type == "low_pass":
             for i in range(len(buffer)):
                 self.filter_prev = self.filter_alpha * buffer[i] + (1 - self.filter_alpha) * self.filter_prev
                 output[i] = self.filter_prev
-        elif self.filter_type == "high" :
+        elif self.filter_type == "high_pass":
             for i in range(len(buffer)):
-                self.filter_prev = self.filter_alpha * buffer[i] + (1 - self.filter_alpha) * self.filter_prev
-
-                output[i] = self.filter_prev
-
+                lp = self.filter_alpha * buffer[i] + (1 - self.filter_alpha) * self.filter_prev
+                self.filter_prev = lp
+                output[i] = buffer[i] - lp  # HP = signal - LP
+        else:
+            output = buffer
         return output
 
     # reverb

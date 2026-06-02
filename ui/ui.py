@@ -78,11 +78,13 @@ class MainWindow(QMainWindow):
         osc_col.setSpacing(2)
 
         self.osc = VitalOsc()
-        self.osc.config_updated.connect(lambda cfg: self._on_osc_change( cfg))
+        self.osc.config_updated.connect(lambda cfg: self._on_osc_change(cfg))
         osc_col.addWidget(self.osc)
         osc_col.addStretch()
 
         self.filter = FilterWidget()
+        self.synth._filter_widget = self.filter
+        self.filter.config_updated.connect(lambda cfg: self._on_filter_change(cfg))
         osc_col.addWidget(self.filter)
 
         # Colonne droite
@@ -148,7 +150,7 @@ class MainWindow(QMainWindow):
         if self._midi_player:
             self._midi_player.stop()
             self._midi_player.wait()
-            self.piano.release_all()
+            self._release_all_notes()
             self._midi_player = None
         self._reset_btn()
 
@@ -170,6 +172,11 @@ class MainWindow(QMainWindow):
         self.piano.release_note(midi)
         self.synth.note_off(midi)
 
+    def _release_all_notes(self):
+        for midi in range(128):
+            self.synth.note_off(midi)
+        self.piano.release_all()
+
     def _on_osc_change(self, config):
         """
         Appelée quand un oscillateur change.
@@ -185,6 +192,11 @@ class MainWindow(QMainWindow):
         self.synth.sustain = interpoler(config["sustain"], 0, 1)
         self.synth.release = interpoler(config["release"], 0.05, 2)
         print(self.synth.attack, self.synth.decay, self.synth.sustain, self.synth.release)
+
+    def _on_filter_change(self, config):
+        self.synth.filter_cutoff = config["cutoff"]
+        self.synth.filter_type = config["filter_type"]
+        self.synth.filter_active = config["active"]
 
     def _on_note_on(self, midi):
         self.synth.note_on(midi)

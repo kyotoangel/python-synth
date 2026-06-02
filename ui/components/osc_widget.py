@@ -55,7 +55,6 @@ class VitalOsc(QFrame):
     def _setup_ui(self):
         layout = QVBoxLayout(self)
 
-        # Écran de visualisation
         self.screen = QLabel()
         self.screen.setFixedSize(SCREEN_WIDTH, SCREEN_HEIGHT)
         self.screen.setStyleSheet(STYLE_SCREEN)
