@@ -92,7 +92,14 @@ class Synth:
     def compute_adsr(self, frames, data): # data étant le dictionnaire de la note
         """
         Calcule et génère l'enveloppe ADSR sur la durée d'un buffer complet
-        Utilise une interpolation linéaire
+        en utilisant une interpolation linéaire
+        arguments :
+        frames (int) -> nombre d'échantillons du buffer audio
+        data (dictionnaire) -> dictionnaire contenant l'état actuel des notes jouées :
+                                "adsr_phase" : phase actuelle de la note (attack ou decay ou sustain...)
+                                "adsr_position" : la position de la note dans la phase actuelle
+
+        retourne un tableau 1D contenant l'amplitude associée à chaque échantillon du buffer
         """
         enveloppe = np.zeros(frames)
 
@@ -149,6 +156,17 @@ class Synth:
     # filtre
 
     def apply_filter(self, buffer):
+        """
+        Prend en entrée un buffer et applique un filtre sur celui-ci
+        (Passe-Bas ou Pass-Haut, selon le type défini)
+        La fréquence de coupure, le type de filtre ne sont pas pris en argument,
+        car ce sont des attributs de la classe "synth"
+
+        Le filtre est la version la plus simple des filtres "IIR" (Infinite Impulse Response)
+        Il est fait à partir de l'équation aux différences d'un passe-bas/passe-haut du 1er ordre.
+
+        Retourne le buffer "filtré"
+        """
         self.filter_alpha = 1 - np.exp(-2 * np.pi * self.filter_cutoff / self.moteur.sample_rate)
         output = np.zeros(len(buffer))
         if self.filter_type == "low_pass":
@@ -167,6 +185,11 @@ class Synth:
     # reverb
 
     def apply_reverb(self, buffer):
+        """
+        Prend en entrée le buffer audio et applique une réverberation sur celui-ci
+        (utilisant la bibliothèque pedalboard, de spotify)
+        Retourne le buffer après application de la reverberation
+        """
         # actualisation des valeurs renvoyées par l'ui d'antoine
         self.reverb.wet_level = self.reverb_mix
         self.reverb.dry_level = 1.0 - self.reverb_mix
