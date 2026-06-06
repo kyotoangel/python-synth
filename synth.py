@@ -36,21 +36,45 @@ class Synth:
         )
 
     def _note_to_frequency(self, note):
+        """
+        Convertit une note (information midi) en fréquence
+        """
         return self.moteur.tuning*2**((note-69)/12) #formule pour convert midi en fréquence
 
+    # ---- Oscillateurs
+
     def _compute_sine(self, phase):
+        """
+        Prend en entrée les données de l'accumulateur de phase et retourne une sinusoidale
+        (fait office d'oscillateur sinusoidal)
+        """
         return np.sin(2*np.pi*phase)
 
     def _compute_square(self, phase):
+        """
+        Prend en entrée les données de l'accumulateur de phase et retourne un carré
+        (fait office d'oscillateur carré)
+        """
         return np.sign(np.sin(2*np.pi*phase))
 
     def _compute_saw(self, phase):
+        """
+        Prend en entrée les données de l'accumulateur de phase et retourne une dent de scie
+        (fait office d'oscillateur dent de scie)
+        """
         return (phase % 1.0) * 2 - 1
 
     def _compute_triangle(self, phase):
+        """
+        Prend en entrée les données de l'accumulateur de phase et retourne un triangle
+        (fait office d'oscillateur triangle)
+        """
         return np.abs((phase % 1.0) * 4 - 2) - 1
 
     def note_on(self, note, velocity=100):
+        """
+        Ajoute une note (argument) au dictionnaire des notes actives
+        """
         if note not in self.notes_actives:
             self.notes_actives[note] = {"phase": 0.0,
                                         "adsr_phase": "attack",
@@ -58,11 +82,18 @@ class Synth:
                                         "velocity": velocity / 127.0}
 
     def note_off(self, note):
+        """
+        Enlève une note (prise en argument) du dictionnaire des notes actives
+        """
         if note in self.notes_actives:
             self.notes_actives[note]["adsr_phase"] = "release"
             self.notes_actives[note]["adsr_position"] = 0.0
 
     def compute_adsr(self, frames, data): # data étant le dictionnaire de la note
+        """
+        Calcule et génère l'enveloppe ADSR sur la durée d'un buffer complet
+        Utilise une interpolation linéaire
+        """
         enveloppe = np.zeros(frames)
 
         if data["adsr_phase"] == "attack" :
