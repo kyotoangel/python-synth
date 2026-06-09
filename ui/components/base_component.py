@@ -100,24 +100,24 @@ class SynthComponent(QFrame):
         btn.setStyleSheet(STYLE_ARROW_BTN)
         return btn
 
-    def _make_knob(self, parent_layout: QVBoxLayout | QHBoxLayout, name: str, default: int = 0, w_size: int= 40, l_size: int= 40) -> QDial:
+    def _make_knob(self, parent_layout: QVBoxLayout | QHBoxLayout, name: str, default_value: int = 0, knob_width: int = 40, knob_length: int = 40) -> QDial:
         """
 
         Crée un QDial de taille renseignée (default 40x40) avec son label au-dessus puis les insère dans un QVBoxLayout et l'ajoute à parent_layout.
 
         :param parent_layout: Un layout PyQt qui va accueillir le knob et son label (QVBoxLayout ou QHBoxLayout).
         :param str name: Le nom du knob.
-        :param int default: Valeur par défaut du knob lorsqu'il est créé.
-        :param w_size: Valeur de la largeur du knob.
-        :param l_size: Valeur de la hauteur du knob.
+        :param int default_value: Valeur par défaut du knob lorsqu'il est créé.
+        :param knob_width: Valeur de la largeur du knob.
+        :param knob_length: Valeur de la hauteur du knob.
         :return: Le knob QDial.
         """
         col = QVBoxLayout()
         col.setSpacing(2)
 
         dial = QDial()
-        dial.setFixedSize(w_size, l_size)
-        dial.setValue(default)
+        dial.setFixedSize(knob_width, knob_length)
+        dial.setValue(default_value)
         dial.setStyleSheet(STYLE_DIAL)
 
         lbl = QLabel(name)

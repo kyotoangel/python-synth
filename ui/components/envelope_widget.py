@@ -19,10 +19,10 @@ class EnvelopeWidget(SynthComponent):
         knobs.setSpacing(10)
         knobs.addStretch()
 
-        self.dial_a = self._make_knob(knobs, "ATTACK", default=20)
-        self.dial_d = self._make_knob(knobs, "DECAY", default=30)
-        self.dial_s = self._make_knob(knobs, "SUSTAIN", default=70)
-        self.dial_r = self._make_knob(knobs, "RELEASE", default=40)
+        self.dial_a = self._make_knob(knobs, "ATTACK", default_value=20)
+        self.dial_d = self._make_knob(knobs, "DECAY", default_value=30)
+        self.dial_s = self._make_knob(knobs, "SUSTAIN", default_value=70)
+        self.dial_r = self._make_knob(knobs, "RELEASE", default_value=40)
 
         # On connecte chaque dial à la fonction _sync() lorsque leur valeur change
         for dial in (self.dial_a, self.dial_d, self.dial_s, self.dial_r):
