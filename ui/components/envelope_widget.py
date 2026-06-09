@@ -1,21 +1,13 @@
 from PyQt6.QtWidgets import QVBoxLayout, QHBoxLayout
-from PyQt6.QtCore import Qt, pyqtSignal
+from PyQt6.QtCore import Qt
 from PyQt6.QtGui import QPainter, QPen, QPainterPath, QLinearGradient, QColor, QPixmap
 from PyQt6.QtCore import QPointF
-
-from components.base_component import (
-    SynthComponent,
-    COLOR_CYAN, COLOR_CYAN_GLOW, COLOR_CYAN_FILL,
-)
-
-WIDGET_HEIGHT = 220
+from components.base_component import SynthComponent, COLOR_CYAN, COLOR_CYAN_GLOW, COLOR_CYAN_FILL
 
 class EnvelopeWidget(SynthComponent):
 
-    config_updated = pyqtSignal(dict)
-
     def __init__(self):
-        super().__init__(widget_height=WIDGET_HEIGHT)
+        super().__init__()
         self._setup_ui()
 
     def _setup_ui(self):
@@ -27,11 +19,12 @@ class EnvelopeWidget(SynthComponent):
         knobs.setSpacing(10)
         knobs.addStretch()
 
-        self.dial_a = self._make_dial(knobs, "ATTACK",  default=20)
-        self.dial_d = self._make_dial(knobs, "DECAY",   default=30)
-        self.dial_s = self._make_dial(knobs, "SUSTAIN", default=70)
-        self.dial_r = self._make_dial(knobs, "RELEASE", default=40)
+        self.dial_a = self._make_knob(knobs, "ATTACK", default=20)
+        self.dial_d = self._make_knob(knobs, "DECAY", default=30)
+        self.dial_s = self._make_knob(knobs, "SUSTAIN", default=70)
+        self.dial_r = self._make_knob(knobs, "RELEASE", default=40)
 
+        # On connecte chaque dial à la fonction _sync() lorsque leur valeur change
         for dial in (self.dial_a, self.dial_d, self.dial_s, self.dial_r):
             dial.valueChanged.connect(self._sync)
 
@@ -41,6 +34,7 @@ class EnvelopeWidget(SynthComponent):
         self._sync()
 
     def _config(self) -> dict:
+        # On return un dictionnaire avec les valeurs des dials
         return {
             "attack":  self.dial_a.value() / 100.0,
             "decay":   self.dial_d.value() / 100.0,
@@ -48,13 +42,16 @@ class EnvelopeWidget(SynthComponent):
             "release": self.dial_r.value() / 100.0,
         }
 
+    # FONCTION GÉNÉRÉE PAR IA (très peu touchée à part la position des points de la courbe) !!!
     def _draw(self):
         w, h = self.screen_width, self.screen_height
         cfg = self._config()
 
-        total = cfg["attack"] + cfg["decay"] + 0.3 + cfg["release"] or 1
+        SUSTAIN_HOLD_RATIO: float = 0.3 # durée visuelle fixe du plateau sustain
 
-        def seg(v): return int(v / total * w)
+        total = cfg["attack"] + cfg["decay"] + SUSTAIN_HOLD_RATIO + cfg["release"] or 1
+
+        def seg(v: float) -> int: return int(v / total * w)
 
         x_a = seg(cfg["attack"])
         x_d = x_a + seg(cfg["decay"])

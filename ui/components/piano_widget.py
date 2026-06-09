@@ -1,15 +1,16 @@
 from PyQt6.QtWidgets import QWidget
-from PyQt6.QtCore import Qt, pyqtSignal
+from PyQt6.QtCore import pyqtSignal
 from PyQt6.QtGui import QPainter, QColor, QPen
 
-# ── config ────────────────────────────────────────────────────
-WHITE_W = 24
-WHITE_H = 80
-BLACK_W = 14
-BLACK_H = 50
-N_OCTAVES = 5
-START_OCTAVE = 2
+# CONFIGURATION DES TOUCHES DU CLAVIER (ne pas toucher, j'ai mis longtemps à trouver des valeurs qui rendent bien !!)
+WHITE_W: int = 24
+WHITE_H: int = 80
+BLACK_W: int = 14
+BLACK_H: int = 50
+N_OCTAVES: int = 5 # Modulable en théorie, mais cela casserait un peu le design global du synthé
+START_OCTAVE: int = 2 # À quelle octave commencer les touches (plus on augmente plus c'est aigu et inversement)
 
+# CONFIGURATION DES COULEURS (si on veut un clavier un peu plus funky)
 COLOR_WHITE = QColor("#e8e8e8")
 COLOR_WHITE_HOVER = QColor("#b0eaff")
 COLOR_WHITE_PRESS = QColor(0, 212, 255)
@@ -19,10 +20,11 @@ COLOR_BLACK_PRESS = QColor(0, 180, 220)
 COLOR_BORDER = QColor("#333")
 COLOR_BG = QColor("#070809")
 
+# CONFIGURATION DES NOTES (ne pas toucher !!)
 BLACK_PATTERN = [0, 1, 3, 4, 5]
 WHITE_NOTES = [0, 2, 4, 5, 7, 9, 11]
 
-
+# FONCTION GÉNÉRÉE PAR IA (pas du tout touchée) !!!
 def _build_keys(n_octaves, start_octave):
     whites, blacks = [], []
     base_midi = (start_octave + 1) * 12
@@ -42,6 +44,7 @@ def _build_keys(n_octaves, start_octave):
 
 class PianoWidget(QWidget):
 
+    # Les deux signaux qui vont nous permettre de nous connecter avec les entrées MIDI (clavier et fichier).
     note_on = pyqtSignal(int)
     note_off = pyqtSignal(int)
 
@@ -53,8 +56,10 @@ class PianoWidget(QWidget):
         self.setStyleSheet("background: transparent;")
 
         self._pressed_mouse = None
+        # De type set, car on ne peut pas appuyer sur une touche qui est déjà appuyée (limitation de notre système que l'on aimerait améliorer)
         self._pressed_midi : set = set()
 
+        # On active le fait de pouvoir appuyer sur les notes avec la souris.
         self.setMouseTracking(True)
 
     def press_note(self, midi: int):
@@ -65,11 +70,17 @@ class PianoWidget(QWidget):
         self._pressed_midi.discard(midi)
         self.update()
 
+    def pressed_notes(self) -> set:
+        # Renvoie toutes les notes actuellement pressées.
+        return set(self._pressed_midi)
+
     def release_all(self):
+        # Supprime toutes les touches appuyées du set.
         self._pressed_midi.clear()
         self.update()
 
     def _note_at(self, x, y):
+        # Permet de recupérer la valeur (midi) de la touche positionnée en (x,y).
         if y < BLACK_H:
             for bx, midi in self._blacks:
                 if bx <= x <= bx + BLACK_W:
@@ -80,28 +91,26 @@ class PianoWidget(QWidget):
         return None
 
     def mousePressEvent(self, e):
+        # Lorsque l'on clique sur une touche, on active la note au travers du signal note_on.
         midi = self._note_at(int(e.position().x()), int(e.position().y()))
         if midi is not None:
             self._pressed_mouse = midi
             self.note_on.emit(midi)
             self.update()
 
-    def mouseReleaseEvent(self, e):
+    def mouseReleaseEvent(self, e) -> None:
+        # Lorsque l'on relâche le click sur une touche, on désactive la note au travers du signal note_off.
         if self._pressed_mouse is not None:
             self.note_off.emit(self._pressed_mouse)
             self._pressed_mouse = None
             self.update()
 
-    def mouseMoveEvent(self, e):
-        self.update()
-
-    def leaveEvent(self, e):
-        self.update()
-
-    def _is_pressed(self, midi):
+    def _is_pressed(self, midi) -> bool:
         return midi == self._pressed_mouse or midi in self._pressed_midi
 
     def paintEvent(self, e):
+        # Appellé automatiquement lors du self.update()
+        # On dessine les touches du clavier, si elles sont pressées alors on change leur couleur pour le montrer.
         p = QPainter(self)
         p.setRenderHint(QPainter.RenderHint.Antialiasing)
         p.fillRect(self.rect(), COLOR_BG)

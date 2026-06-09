@@ -6,7 +6,6 @@ Installer les dépendances :
     pip install numpy sounddevice scipy pedalboard
 
 
-
 COMMENT ÇA MARCHE
 -----------------
 Le synthé est organisé en deux couches :

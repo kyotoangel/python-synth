@@ -70,15 +70,14 @@ class Synth:
         """
         return np.abs((phase % 1.0) * 4 - 2) - 1
 
-    def note_on(self, note, velocity=100):
+    def note_on(self, note):
         """
         Ajoute une note (argument) au dictionnaire des notes actives
         """
         if note not in self.notes_actives:
             self.notes_actives[note] = {"phase": 0.0,
                                         "adsr_phase": "attack",
-                                        "adsr_position": 0.0,
-                                        "velocity": velocity / 127.0}
+                                        "adsr_position": 0.0}
 
     def note_off(self, note):
         """

@@ -1,33 +1,21 @@
 import numpy as np
-from PyQt6.QtWidgets import QVBoxLayout, QHBoxLayout, QLabel, QDial, QSlider
-from PyQt6.QtCore import Qt, pyqtSignal
+from PyQt6.QtWidgets import QVBoxLayout, QHBoxLayout, QLabel, QSlider
+from PyQt6.QtCore import Qt
 from PyQt6.QtGui import QPainter, QPen, QPainterPath, QLinearGradient, QColor, QPixmap, QPolygonF
 from PyQt6.QtCore import QPointF
+from components.base_component import SynthComponent, COLOR_CYAN, COLOR_CYAN_GLOW, COLOR_CYAN_FILL, STYLE_SLIDER
 
-from components.base_component import (
-    SynthComponent,
-    COLOR_CYAN, COLOR_CYAN_GLOW, COLOR_CYAN_FILL,
-)
+WAVE_AMPLITUDE_RATIO: float = 1 / 3
 
-WIDGET_HEIGHT = 220
-WAVE_AMPLITUDE_RATIO = 1 / 3
-
-STYLE_SLIDER = """
-    QSlider::groove:horizontal { background: #1a1a1a; height: 4px; border-radius: 2px; }
-    QSlider::handle:horizontal { background: #00d4ff; width: 14px; height: 14px; margin: -5px 0; border-radius: 7px; }
-    QSlider::sub-page:horizontal { background: #00d4ff; height: 4px; border-radius: 2px; }
-"""
-
-
-class VitalOsc(SynthComponent):
-
-    config_updated = pyqtSignal(dict)
+class OscWidget(SynthComponent):
 
     def __init__(self):
-        super().__init__(widget_height=WIDGET_HEIGHT)
+        super().__init__()
 
+        # Type de waveform disponible dans le composant (ici Sine, Triangle, Sawtooth et Square)
         self.wf_types = ["SINE", "TRIANGLE", "SAW", "SQUARE"]
-        self.wf_idx = 0
+        self.wf_index = 0
+
         self.level = 0.5
         self.tuning = 440
 
@@ -36,7 +24,7 @@ class VitalOsc(SynthComponent):
     def _setup_ui(self):
         layout = QVBoxLayout(self)
 
-        layout.addWidget(self._make_screen("SINE"))
+        layout.addWidget(self._make_screen(self.wf_types[self.wf_index]))
 
         btn_prev = self._make_arrow("<", x=0)
         btn_next = self._make_arrow(">", x=self.screen_width - 20)
@@ -45,7 +33,7 @@ class VitalOsc(SynthComponent):
 
         ctrl = QVBoxLayout()
 
-        self.dial = self._make_dial(ctrl, "LEVEL", 50, 45, 45)
+        self.dial = self._make_knob(ctrl, "LEVEL", 50, 45, 45)
         self.dial.valueChanged.connect(self._sync)
 
         tuning_ctrl = QVBoxLayout()
@@ -81,25 +69,27 @@ class VitalOsc(SynthComponent):
         self._sync()
 
     def _change_waveform(self, delta):
-        self.wf_idx = (self.wf_idx + delta) % len(self.wf_types)
-        self.lbl_title.setText(self.wf_types[self.wf_idx])
+        # On change le label du type de waveform et on appelle _sync() pour redessiner le composant
+        self.wf_index = (self.wf_index + delta) % len(self.wf_types)
+        self.lbl_title.setText(self.wf_types[self.wf_index])
         self._sync()
 
     def _sync(self):
+        # À chaque changement de configuration, on calcule le level en pourcentage et on affiche sur le label la valeur du tuning et on appelle _sync()
         self.level = self.dial.value() / 100.0
         self.tuning = self.tuning_slider.value()
         self.lbl_tuning_val.setText(f"{self.tuning} Hz")
         super()._sync()
 
     def _config(self) -> dict:
+        # On retourne un dictionnaire avec le type de waveform sélectionné, le level en pourcentage et le tuning en Hz.
         return {
-            "waveform": self.wf_types[self.wf_idx].lower(),
+            "waveform": self.wf_types[self.wf_index].lower(),
             "level": self.level,
             "tuning": self.tuning,
         }
 
-    # ── Dessin ────────────────────────────────────────────────
-
+    # FONCTION GÉNÉRÉE PAR IA (très peu touchée) !!!
     def _draw(self):
         w, h = self.screen_width, self.screen_height
 
@@ -110,7 +100,7 @@ class VitalOsc(SynthComponent):
         p.setRenderHint(QPainter.RenderHint.Antialiasing)
 
         x_vals = np.linspace(0, 2 * np.pi, w)
-        wf = self.wf_types[self.wf_idx]
+        wf = self.wf_types[self.wf_index]
 
         if wf == "SINE":
             y_vals = np.sin(x_vals)
