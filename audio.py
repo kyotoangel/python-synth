@@ -8,6 +8,7 @@ class MoteurAudio:
         self.volume = volume
         self.tuning = tuning
         self.stream = None
+        self.synth = None
         
     def play(self, samples: np.ndarray):
         """
