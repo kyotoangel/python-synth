@@ -21,7 +21,7 @@ class OscWidget(SynthComponent):
 
         self._setup_ui()
 
-    def _setup_ui(self):
+    def _setup_ui(self) -> None:
         layout = QVBoxLayout(self)
 
         layout.addWidget(self._make_screen(self.wf_types[self.wf_index]))
@@ -68,13 +68,13 @@ class OscWidget(SynthComponent):
 
         self._sync()
 
-    def _change_waveform(self, delta):
+    def _change_waveform(self, delta) -> None:
         # On change le label du type de waveform et on appelle _sync() pour redessiner le composant
         self.wf_index = (self.wf_index + delta) % len(self.wf_types)
         self.lbl_title.setText(self.wf_types[self.wf_index])
         self._sync()
 
-    def _sync(self):
+    def _sync(self) -> None:
         # À chaque changement de configuration, on calcule le level en pourcentage et on affiche sur le label la valeur du tuning et on appelle _sync()
         self.level = self.dial.value() / 100.0
         self.tuning = self.tuning_slider.value()
@@ -90,7 +90,7 @@ class OscWidget(SynthComponent):
         }
 
     # FONCTION GÉNÉRÉE PAR IA (très peu touchée) !!!
-    def _draw(self):
+    def _draw(self) -> None:
         w, h = self.screen_width, self.screen_height
 
         pixmap = QPixmap(w, h)

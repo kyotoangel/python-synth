@@ -11,7 +11,7 @@ SCREEN_HEIGHT: int = 160
 
 class FilterWidget(SynthComponent):
 
-    def __init__(self):
+    def __init__(self, freq_min: float = 20.0, freq_max: float = 20000.0):
         super().__init__(widget_height=WIDGET_HEIGHT, screen_height=SCREEN_HEIGHT)
 
         # Type de filtre disponible dans le composant (ici Passe Haut et Passe bas)
@@ -19,8 +19,8 @@ class FilterWidget(SynthComponent):
         self.filter_index = 0
 
         # Fréquence minimale et maximale du filtre
-        self.freq_min = 20.0
-        self.freq_max = 20000.0
+        self.freq_min = freq_min
+        self.freq_max = freq_max
 
         # Cutoff du filtre en pourcentage
         self.cutoff_norm = 0.5
@@ -29,7 +29,7 @@ class FilterWidget(SynthComponent):
 
         self._setup_ui()
 
-    def _setup_ui(self):
+    def _setup_ui(self) -> None:
         layout = QVBoxLayout(self)
 
         screen_layout = QHBoxLayout()
@@ -64,7 +64,7 @@ class FilterWidget(SynthComponent):
         self.lbl_title.setText(self.filter_types[self.filter_index])
         self._sync()
 
-    def _sync(self):
+    def _sync(self) -> None:
         # À chaque changement de configuration du slider, on calcule le nouveau cutoff en Hz puis on l'affiche sur le label et on appelle _sync()
         self.cutoff_norm = self.slider.value() / 1000.0
         self.cutoff = self._norm_to_frequency(self.cutoff_norm)
@@ -83,7 +83,7 @@ class FilterWidget(SynthComponent):
         return int(self.freq_min * (self.freq_max / self.freq_min) ** norm)
 
     # FONCTION GÉNÉRÉE PAR IA (pas du tout touchée) !!!
-    def _draw(self):
+    def _draw(self) -> None:
         w = self.screen_width
         h = self.screen_height - 20
         y_off = 20

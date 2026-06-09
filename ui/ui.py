@@ -41,8 +41,8 @@ class MainWindow(QMainWindow):
         self.synth = Synth(self.moteur)
         self.moteur.start(self.synth)
 
-        self._midi_player = None
-        self._midi_input = None
+        self._midi_player: MidiPlayer | None = None
+        self._midi_input: MidiInput | None = None
 
         central = QWidget()
         self.setCentralWidget(central)
@@ -95,6 +95,7 @@ class MainWindow(QMainWindow):
 
         # On instancie le composant Piano ainsi que les boutons pour ouvrir un fichier MIDI et un input MIDI.
         self.piano = PianoWidget()
+        # On connecte les deux fonctions _on_note_on et _on_note_off aux deux signaux note_on et note_off du composant piano.
         self.piano.note_on.connect(self._on_note_on)
         self.piano.note_off.connect(self._on_note_off)
 
@@ -161,30 +162,6 @@ class MainWindow(QMainWindow):
         self.btn_midi.clicked.disconnect()
         self.btn_midi.clicked.connect(self._open_midi)
 
-    def _on_midi_note_on(self, midi: int) -> None:
-        # On presse la touche MIDI et on joue la note sur le synth.
-        self.piano.press_note(midi)
-        self.synth.note_on(midi)
-
-    def _on_midi_note_off(self, midi: int) -> None:
-        # On retire la note MIDI et on arrête de jouer la note sur le synth.
-        self.piano.release_note(midi)
-        self.synth.note_off(midi)
-
-    def _release_all_notes(self) -> None:
-        # On désactive toutes les notes MIDI sur le synth et sur le piano MIDI.
-        for midi in self.piano.pressed_notes():
-            self.synth.note_off(midi)
-        self.piano.release_all()
-
-    def _on_note_on(self, midi: int) -> None:
-        # On joue la note sur le synth lorsqu'on clique sur la touche du piano.
-        self.synth.note_on(midi)
-
-    def _on_note_off(self, midi: int) -> None:
-        # On arrête de jouer la note sur le synth lorsque l'on relâche la touche.
-        self.synth.note_off(midi)
-
     def _open_midi_in(self) -> None:
         # On récupère la liste des ports MIDI disponibles.
         ports = MidiInput.list_ports()
@@ -226,6 +203,30 @@ class MainWindow(QMainWindow):
         self.btn_midi_in.clicked.disconnect()
         self.btn_midi_in.clicked.connect(self._open_midi_in)
 
+    def _on_midi_note_on(self, midi: int) -> None:
+        # On presse la touche MIDI et on joue la note sur le synth.
+        self.piano.press_note(midi)
+        self.synth.note_on(midi)
+
+    def _on_midi_note_off(self, midi: int) -> None:
+        # On retire la note MIDI et on arrête de jouer la note sur le synth.
+        self.piano.release_note(midi)
+        self.synth.note_off(midi)
+
+    def _release_all_notes(self) -> None:
+        # On désactive toutes les notes MIDI sur le synth et sur le piano MIDI.
+        for midi in self.piano.pressed_notes():
+            self.synth.note_off(midi)
+        self.piano.release_all()
+
+    def _on_note_on(self, midi: int) -> None:
+        # On joue la note sur le synth lorsqu'on clique sur la touche du piano.
+        self.synth.note_on(midi)
+
+    def _on_note_off(self, midi: int) -> None:
+        # On arrête de jouer la note sur le synth lorsque l'on relâche la touche.
+        self.synth.note_off(midi)
+
     def _on_osc_change(self, config: dict) -> None:
         # Lorsque le composant oscillateur est mis à jour, on change la configuration du MoteurAudio en ajustant le volume et le tuning.
         self.synth.waveform = config["waveform"]
@@ -251,7 +252,7 @@ class MainWindow(QMainWindow):
         self.synth.room_size = interpoler(config["decay"], 0, 1)
         self.synth.damping = config["damping"]
 
-    def closeEvent(self, event):
+    def closeEvent(self, e) -> None:
         # Événement de fermeture de la fenêtre : on arrête tout.
         if self._midi_player:
             self._midi_player.stop()
@@ -260,7 +261,7 @@ class MainWindow(QMainWindow):
             self._midi_input.stop()
             self._midi_input.wait()
         self.moteur.stop()
-        super().closeEvent(event)
+        super().closeEvent(e)
 
 if __name__ == "__main__":
     app = QApplication(sys.argv)

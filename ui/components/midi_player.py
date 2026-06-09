@@ -14,10 +14,10 @@ class MidiPlayer(QThread):
         self._path = path
         self._stopped = False
 
-    def stop(self):
+    def stop(self) -> None:
         self._stopped = True
 
-    def run(self):
+    def run(self) -> None:
         mid = mido.MidiFile(self._path)
         for message in mid.play():
             if self._stopped:

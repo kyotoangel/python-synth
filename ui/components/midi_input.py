@@ -13,10 +13,10 @@ class MidiInput(QThread):
         self._port_name = port_name
         self._stopped   = False
 
-    def stop(self):
+    def stop(self) -> None:
         self._stopped = True
 
-    def run(self):
+    def run(self) -> None:
         with mido.open_input(self._port_name) as port:
             for message in port:
                 if self._stopped:

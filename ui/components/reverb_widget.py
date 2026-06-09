@@ -11,7 +11,7 @@ class ReverbWidget(SynthComponent):
         super().__init__(widget_height=WIDGET_HEIGHT)
         self._setup_ui()
 
-    def _setup_ui(self):
+    def _setup_ui(self) -> None:
         layout = QVBoxLayout(self)
         layout.setContentsMargins(8, 8, 8, 8)
         layout.setSpacing(4)
@@ -46,6 +46,6 @@ class ReverbWidget(SynthComponent):
             "damping": self.dial_damping.value() / 100.0,
         }
 
-    def _draw(self):
+    def _draw(self) -> None:
         # Il n'y a pas de dessin pour le reverb
         pass

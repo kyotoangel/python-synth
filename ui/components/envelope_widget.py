@@ -10,7 +10,7 @@ class EnvelopeWidget(SynthComponent):
         super().__init__()
         self._setup_ui()
 
-    def _setup_ui(self):
+    def _setup_ui(self) -> None:
         layout = QVBoxLayout(self)
 
         layout.addWidget(self._make_screen("ENV"))
