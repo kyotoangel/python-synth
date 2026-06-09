@@ -1,5 +1,4 @@
 import numpy as np
-from scipy.signal import fftconvolve
 from pedalboard import Reverb
 
 class Synth:
