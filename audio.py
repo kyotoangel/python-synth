@@ -2,12 +2,13 @@ import numpy as np
 import sounddevice as sd
 
 class MoteurAudio:
-    def __init__(self, sample_rate: int = 44100, volume: float = -25.0, tuning: int = 440, buffer_size = 256) -> None:
+    def __init__(self, sample_rate: int = 44100, volume: float = -25.0, tuning: int = 440, buffer_size: int = 256) -> None:
         self.sample_rate = sample_rate
         self.buffer_size = buffer_size
         self.volume = volume
         self.tuning = tuning
         self.stream = None
+        self.synth = None
         
     def play(self, samples: np.ndarray):
         """
