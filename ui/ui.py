@@ -1,5 +1,5 @@
 import sys
-from PyQt6.QtWidgets import (QApplication, QMainWindow, QWidget, QVBoxLayout, QHBoxLayout, QPushButton, QFileDialog, QMessageBox, QInputDialog)
+from PyQt6.QtWidgets import QApplication, QMainWindow, QWidget, QVBoxLayout, QHBoxLayout, QPushButton, QFileDialog, QMessageBox, QInputDialog
 from PyQt6.QtCore import Qt
 from audio import MoteurAudio
 from components.osc_widget import OscWidget
@@ -17,7 +17,7 @@ STYLE_BTN: str = """
         color: #aaa;
         background: #1a1a1a;
         border: 1px solid #333;
-        border-radius: 4px;
+        border-radius: 4px; 
         padding: 4px 10px;
         font-size: 11px;
     }
