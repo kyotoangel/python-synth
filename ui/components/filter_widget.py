@@ -1,58 +1,40 @@
 import numpy as np
 from PyQt6.QtWidgets import QHBoxLayout, QSlider, QLabel, QVBoxLayout
-from PyQt6.QtCore import Qt, QTimer, pyqtSignal
+from PyQt6.QtCore import Qt
 from PyQt6.QtGui import QPainter, QPen, QPainterPath, QLinearGradient, QColor, QPixmap
 from PyQt6.QtCore import QPointF
+from components.base_component import SynthComponent, COLOR_CYAN, COLOR_CYAN_GLOW, COLOR_CYAN_FILL, STYLE_SLIDER
+from utils import lp_response, hp_response
 
-from components.base_component import (
-    SynthComponent,
-    COLOR_CYAN, COLOR_CYAN_GLOW, COLOR_CYAN_FILL,
-)
-
-WIDGET_HEIGHT = 250
-SCREEN_HEIGHT = 160
-
-STYLE_SLIDER = """
-    QSlider::groove:horizontal { background: #1a1a1a; height: 4px; border-radius: 2px; }
-    QSlider::handle:horizontal { background: #00d4ff; width: 14px; height: 14px; margin: -5px 0; border-radius: 7px; }
-    QSlider::sub-page:horizontal { background: #00d4ff; height: 4px; border-radius: 2px; }
-"""
-
-FREQ_MIN = 20.0
-FREQ_MAX = 20000.0
-
-FILTER_TYPES = ["LOW PASS", "HIGH PASS"]
-
-
-def _lp_response(freqs, cutoff):
-    ratio = freqs / cutoff
-    return 1.0 / (1.0 + ratio ** 2)
-
-
-def _hp_response(freqs, cutoff):
-    ratio = freqs / cutoff
-    return ratio ** 2 / (1.0 + ratio ** 2)
-
+WIDGET_HEIGHT: int = 250
+SCREEN_HEIGHT: int = 160
 
 class FilterWidget(SynthComponent):
 
-    config_updated = pyqtSignal(dict)
-
-    def __init__(self):
+    def __init__(self, freq_min: float = 20.0, freq_max: float = 20000.0):
         super().__init__(widget_height=WIDGET_HEIGHT, screen_height=SCREEN_HEIGHT)
 
-        self.filter_idx = 0
+        # Type de filtre disponible dans le composant (ici Passe Haut et Passe bas)
+        self.filter_types = ["LOW PASS", "HIGH PASS"]
+        self.filter_index = 0
+
+        # Fréquence minimale et maximale du filtre
+        self.freq_min = freq_min
+        self.freq_max = freq_max
+
+        # Cutoff du filtre en pourcentage
         self.cutoff_norm = 0.5
-        self.cutoff = self._norm_to_freq(self.cutoff_norm)
+        # Cutoff du filtre en Hz
+        self.cutoff = self._norm_to_frequency(self.cutoff_norm)
 
         self._setup_ui()
 
-    def _setup_ui(self):
+    def _setup_ui(self) -> None:
         layout = QVBoxLayout(self)
 
         screen_layout = QHBoxLayout()
 
-        screen_layout.addWidget(self._make_screen(FILTER_TYPES[self.filter_idx]))
+        screen_layout.addWidget(self._make_screen(self.filter_types[self.filter_index]))
 
         btn_prev = self._make_arrow("<", x=0)
         btn_next = self._make_arrow(">", x=self.screen_width - 20)
@@ -76,39 +58,39 @@ class FilterWidget(SynthComponent):
 
         self._sync()
 
-    def _change_type(self, delta):
-        self.filter_idx = (self.filter_idx + delta) % len(FILTER_TYPES)
-        self.lbl_title.setText(FILTER_TYPES[self.filter_idx])
+    def _change_type(self, delta: int) -> None:
+        # On change le label du type de filtre et on appelle _sync() pour redessiner le composant
+        self.filter_index = (self.filter_index + delta) % len(self.filter_types)
+        self.lbl_title.setText(self.filter_types[self.filter_index])
         self._sync()
 
-    def _sync(self):
+    def _sync(self) -> None:
+        # À chaque changement de configuration du slider, on calcule le nouveau cutoff en Hz puis on l'affiche sur le label et on appelle _sync()
         self.cutoff_norm = self.slider.value() / 1000.0
-        self.cutoff = self._norm_to_freq(self.cutoff_norm)
+        self.cutoff = self._norm_to_frequency(self.cutoff_norm)
         self.lbl_cutoff_val.setText(f"{self.cutoff} Hz")
         super()._sync()
 
     def _config(self) -> dict:
+        # On retourne un dictionnaire avec le type de filtre sélectionné ansi que le cutoff en Hz.
         return {
-            "filter_type": FILTER_TYPES[self.filter_idx].lower().replace(" ", "_"),
+            "filter_type": self.filter_types[self.filter_index].lower().replace(" ", "_"),
             "cutoff": self.cutoff,
-            "active": True,
         }
 
-    @staticmethod
-    def _norm_to_freq(norm: float) -> float:
-        return int(FREQ_MIN * (FREQ_MAX / FREQ_MIN) ** norm)
+    def _norm_to_frequency(self, norm: float) -> int:
+        # Permet de convertir le cutoff normalisé en cutoff de fréquence.
+        return int(self.freq_min * (self.freq_max / self.freq_min) ** norm)
 
-    # ── Dessin ────────────────────────────────────────────────
-
-    def _draw(self):
+    # FONCTION GÉNÉRÉE PAR IA (pas du tout touchée) !!!
+    def _draw(self) -> None:
         w = self.screen_width
         h = self.screen_height - 20
         y_off = 20
 
-        cutoff = self._norm_to_freq(self.cutoff_norm)
-        freqs = np.logspace(np.log10(FREQ_MIN), np.log10(FREQ_MAX), w)
+        frequencies = np.logspace(np.log10(self.freq_min), np.log10(self.freq_max), w)
 
-        mag = (_lp_response if self.filter_idx == 0 else _hp_response)(freqs, cutoff)
+        mag = (lp_response if self.filter_index == 0 else hp_response)(frequencies, self.cutoff)
         mag = np.clip(mag, 0, 1)
 
         pixmap = QPixmap(self.screen_width, self.screen_height)

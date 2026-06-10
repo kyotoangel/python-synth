@@ -1,13 +1,11 @@
 import mido
 from PyQt6.QtCore import QThread, pyqtSignal
 
-
 class MidiPlayer(QThread):
     """
-    Lit un fichier MIDI dans un thread séparé.
-    Émet note_on(midi, velocity) et note_off(midi) avec le bon timing.
+    Lit un fichier MIDI et permet d'envoyer les notes sur les signaux note_on et note_off.
     """
-    note_on = pyqtSignal(int, int)   # midi, velocity
+    note_on = pyqtSignal(int)
     note_off = pyqtSignal(int)
     finished = pyqtSignal()
 
@@ -16,16 +14,16 @@ class MidiPlayer(QThread):
         self._path = path
         self._stopped = False
 
-    def stop(self):
+    def stop(self) -> None:
         self._stopped = True
 
-    def run(self):
+    def run(self) -> None:
         mid = mido.MidiFile(self._path)
-        for msg in mid.play():
+        for message in mid.play():
             if self._stopped:
                 break
-            if msg.type == "note_on" and msg.velocity > 0:
-                self.note_on.emit(msg.note, msg.velocity)
-            elif msg.type == "note_off" or (msg.type == "note_on" and msg.velocity == 0):
-                self.note_off.emit(msg.note)
+            if message.type == "note_on" and message.velocity > 0:
+                self.note_on.emit(message.note)
+            elif message.type == "note_off" or (message.type == "note_on" and message.velocity == 0):
+                self.note_off.emit(message.note)
         self.finished.emit()

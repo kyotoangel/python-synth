@@ -3,8 +3,7 @@ DÉPENDANCES
 Python 3.8+
 
 Installer les dépendances :
-    pip install numpy sounddevice scipy pedalboard
-
+    pip install -r requirements.txt
 
 
 COMMENT ÇA MARCHE
